@@ -48,8 +48,8 @@ if('serviceWorker' in navigator){
     --seg:#F0F0F0;           /* relleno de boton no seleccionado */
     --borde:#9A9A9A;         /* borde gris de los grupos */
     --ring:conic-gradient(#ffffff,#9a9a9a,#e8e8e8,#5a5a5a,#ffffff,#8a8a8a,#dcdcdc,#666666,#ffffff);
-    --pod-size:66px;         /* diametro exterior del pod (START = 78px) */
-    --pod-gap:48px;          /* separacion entre pods */
+    --pod-size:80px;         /* diametro exterior del pod */
+    --pod-gap:16px;          /* separacion entre pods */
     --tx-gris:#B4B4B4;       /* etiquetas y footer */
     --tx-dev:#9A9A9A;        /* texto barra negra */
     --tx-seg:#555555;        /* texto boton no seleccionado */
@@ -103,6 +103,7 @@ if('serviceWorker' in navigator){
   }
   .segment button:last-child{border-right:0;}
   .segment button.sel{background:var(--rojo);color:#fff;}
+  #segModo button{ font-size:13px; letter-spacing:0.3px; padding-left:2px; padding-right:2px; }
   #segEstimulo,#segEnsayos{margin-top:8px;}
   .seg-dim{ opacity:.4; pointer-events:none; }
 
@@ -117,6 +118,47 @@ if('serviceWorker' in navigator){
     text-align:center;color:var(--tx-gris);font-weight:600;letter-spacing:2px;
     font-size:10px;text-transform:uppercase;padding:6px 12px 10px;
   }
+
+  /* ===== Modo Libre: pantalla de seleccion ===== */
+  #libre > .libre-main{
+    flex:1; min-height:0; overflow-y:auto; display:flex; flex-direction:column; align-items:center;
+    padding:10px 12px 16px; box-sizing:border-box;
+    background-color:#c7cbcf;
+    background-image:
+      radial-gradient(70% 50% at 50% 30%,rgba(255,255,255,0.55) 0%,rgba(255,255,255,0) 60%),
+      linear-gradient(180deg,#e4e7ea 0%,#c7cbcf 60%,#b0b4b8 100%);
+  }
+  .libre-title{ font-size:1.2rem; font-weight:900; letter-spacing:0.12em; text-transform:uppercase; color:#111; text-align:center; margin:6px 0 12px; }
+  .libre-panel{
+    width:100%; max-width:360px; box-sizing:border-box; margin:0 auto;
+    padding:14px 14px 16px; display:flex; flex-direction:column; gap:10px;
+    border:3px solid #b03020; border-radius:14px; background:#0a0a0a;
+    box-shadow:0 4px 12px rgba(0,0,0,.45);
+  }
+  .libre-row{
+    display:flex; align-items:center; justify-content:space-between; width:100%; box-sizing:border-box;
+    padding:11px 14px; border:2px solid var(--negro); background:var(--seg); color:var(--tx-seg);
+    font-family:inherit; cursor:pointer;
+  }
+  .libre-row .libre-k{ font-weight:700; letter-spacing:1.5px; text-transform:uppercase; font-size:14px; }
+  .libre-row .libre-v{ font-weight:800; font-size:16px; }
+  .libre-row.sel{ background:var(--rojo); color:#fff; border-color:var(--rojo); }
+  .libre-ctrls{ display:flex; gap:14px; justify-content:center; margin-top:4px; }
+  .libre-pm{
+    width:96px; height:58px; border-radius:12px; border:2px solid #6f6f6f;
+    background:var(--ring); color:#1a1a1a; font-size:32px; font-weight:800; line-height:1;
+    text-shadow:0 1px 0 rgba(255,255,255,.6); cursor:pointer;
+    box-shadow:0 3px 7px rgba(0,0,0,.5), inset 0 2px 3px rgba(255,255,255,.4), inset 0 -3px 6px rgba(0,0,0,.35);
+  }
+  .libre-pm:active{ transform:translateY(1px); }
+  .libre-start{
+    width:80%; max-width:240px; margin:8px auto 0; padding:12px; border:none; border-radius:10px; cursor:pointer;
+    background:radial-gradient(circle at 35% 30%, #e84030 0%, #b03020 45%, #7a1a10 100%);
+    color:#fff; font-weight:900; letter-spacing:0.18em; text-transform:uppercase; font-size:0.95rem;
+    box-shadow:0 4px 10px rgba(0,0,0,.5), inset 0 2px 4px rgba(255,255,255,.28), inset 0 -3px 6px rgba(0,0,0,.5);
+  }
+  .libre-start:active{ transform:translateY(1px); }
+  .libre-start.disabled{ opacity:.45; pointer-events:none; }
 
   /* ===== Multi-pantalla ===== */
   .screen{flex:1;display:none;flex-direction:column;min-height:0;}
@@ -288,6 +330,7 @@ if('serviceWorker' in navigator){
       <button class="sel" data-v="normal">Normal</button>
       <button data-v="extremo">Extremo</button>
       <button data-v="limite">L&#237;mite</button>
+      <button data-v="libre">Libre</button>
     </div>
 
     <div class="segment" id="segEstimulo">
@@ -388,6 +431,26 @@ if('serviceWorker' in navigator){
   </div>
   </section>
 
+  <section id="libre" class="screen">
+    <main class="libre-main">
+      <h2 class="libre-title">Modo Libre</h2>
+      <div class="libre-panel">
+        <button type="button" class="libre-row sel" data-p="tiempo"><span class="libre-k">Tiempo</span><span class="libre-v" id="lvTiempo">0 s</span></button>
+        <button type="button" class="libre-row" data-p="ensayos"><span class="libre-k">Ensayos</span><span class="libre-v" id="lvEnsayos">0</span></button>
+        <button type="button" class="libre-row" data-p="espera"><span class="libre-k">Espera</span><span class="libre-v" id="lvEspera">0</span></button>
+        <button type="button" class="libre-row" data-p="modo"><span class="libre-k">Modo</span><span class="libre-v" id="lvModo">3 pods</span></button>
+        <div class="libre-ctrls">
+          <button type="button" class="libre-pm" id="lbMinus">&#8722;</button>
+          <button type="button" class="libre-pm" id="lbPlus">+</button>
+        </div>
+        <button type="button" class="libre-start" id="lbStart">Empezar</button>
+      </div>
+    </main>
+  <div class="results-actions">
+    <button class="game-ctrl-btn" onclick="goHome()">&#8592; Inicio</button>
+  </div>
+  </section>
+
   <section id="result" class="screen">
     <div class="result-body">
       <div class="res-quad">
@@ -410,7 +473,7 @@ if('serviceWorker' in navigator){
         </div>
       </div>
       <div class="res-chart" id="resChart"></div>
-      <div class="save-row">
+      <div class="save-row" id="saveRow">
         <button class="btn-save" id="btnGuardar">Guardar resultado</button>
         <button class="btn-rank2" id="btnRank2">Ranking</button>
       </div>
@@ -513,9 +576,11 @@ function seg(id){
 }
 function updateModeUI(){
   var mode=selVal('segModo')||'normal';
-  var est=$('segEstimulo');
-  if(mode==='limite'){ setSeg('segEstimulo','cambia'); if(est) est.classList.add('seg-dim'); }
-  else { if(est) est.classList.remove('seg-dim'); }
+  var est=$('segEstimulo'), ens=$('segEnsayos');
+  var dimEst=(mode==='limite'||mode==='libre');
+  if(mode==='limite'){ setSeg('segEstimulo','cambia'); }
+  if(est){ est.classList.toggle('seg-dim', dimEst); }
+  if(ens){ ens.classList.toggle('seg-dim', mode==='libre'); }
 }
 function selVal(id){ var b=$(id).querySelector('button.sel'); return b?b.getAttribute('data-v'):null; }
 
@@ -524,6 +589,10 @@ var S={mode:'normal',stim:'cambia',total:15,name:'RDS',sport:'',
   seq:[],idx:0,trial:0,times:[],podColors:[],
   running:false,lock:true,armed:false,stimVisible:false,
   t0:0,trialT0:0,countIv:0,coverTo:0,limitTo:0,deadline:0,resEnsayos:0};
+var RT_CORR=30; /* correccion latencia tactil (ms), igual que Reaction Speed */
+var LIBRE_MODOS=['3 pods','6 pods','9 pods','9 Colors','9 Colors Mix','2 pods'];
+S.free={sel:'tiempo',tiempo:0,ensayos:0,espera:0,modo:0};
+S.libre=false; S.byTime=false; S.podSet=null; S.waitMin=0; S.waitMax=0; S.timeLimit=0; S.reshuffle=false;
 
 function filterInitials(el){ el.value=el.value.replace(/[^A-Za-z]/g,'').toUpperCase(); }
 /* === Lights: helpers de pods y pantalla === */
@@ -535,13 +604,73 @@ function closePalette(){ var p=$('palette'); if(p) p.classList.remove('open'); }
 function hideCountdown(){ var c=$('countdown'); if(c) c.classList.remove('show'); }
 function clearTimers(){ if(S.countIv){clearInterval(S.countIv);S.countIv=0;} if(S.coverTo){clearTimeout(S.coverTo);S.coverTo=0;} if(S.limitTo){clearInterval(S.limitTo);clearTimeout(S.limitTo);S.limitTo=0;} if(S.chronoIv){clearInterval(S.chronoIv);S.chronoIv=0;} }
 function tickChrono(){ if($('stChrono')) $('stChrono').textContent=fmtChrono2(performance.now()-S.t0); }
-function resetGameStats(){ if($('stLast'))$('stLast').textContent='--'; if($('stAvg'))$('stAvg').textContent='--'; if($('stChrono'))$('stChrono').textContent='00:00.000'; if($('prog'))$('prog').style.width='0%'; if($('trialCount'))$('trialCount').textContent='1/'+S.total; }
+function resetGameStats(){ if($('stLast'))$('stLast').textContent='--'; if($('stAvg'))$('stAvg').textContent='--'; if($('stChrono'))$('stChrono').textContent='00:00.000'; if($('prog'))$('prog').style.width='0%'; if($('trialCount'))$('trialCount').textContent=(S.byTime?(S.timeLimit+'s'):('1/'+S.total)); }
 
 /* === Lights: entrada al ejercicio (START del home) === */
+function libreRender(){
+  var f=S.free;
+  if($('lvTiempo')) $('lvTiempo').textContent=f.tiempo+' s';
+  if($('lvEnsayos')) $('lvEnsayos').textContent=String(f.ensayos);
+  if($('lvEspera')) $('lvEspera').textContent=String(f.espera);
+  if($('lvModo')) $('lvModo').textContent=LIBRE_MODOS[f.modo];
+  var rows=document.querySelectorAll('#libre .libre-row');
+  for(var i=0;i<rows.length;i++){ rows[i].classList.toggle('sel', rows[i].getAttribute('data-p')===f.sel); }
+  var canStart=(f.tiempo>0||f.ensayos>0);
+  var st=$('lbStart'); if(st) st.classList.toggle('disabled', !canStart);
+}
+function libreSelect(p){ S.free.sel=p; libreRender(); }
+function libreAdjust(dir){
+  var f=S.free;
+  if(f.sel==='tiempo'){ f.tiempo=Math.min(120,Math.max(0,f.tiempo+dir*5)); if(f.tiempo>0) f.ensayos=0; }
+  else if(f.sel==='ensayos'){ f.ensayos=Math.min(100,Math.max(0,f.ensayos+dir*5)); if(f.ensayos>0) f.tiempo=0; }
+  else if(f.sel==='espera'){ f.espera=Math.min(2,Math.max(0,f.espera+dir)); }
+  else if(f.sel==='modo'){ f.modo=Math.min(LIBRE_MODOS.length-1,Math.max(0,f.modo+dir)); }
+  libreRender();
+}
+function libreInit(){
+  var rows=document.querySelectorAll('#libre .libre-row');
+  for(var i=0;i<rows.length;i++){ (function(r){ r.addEventListener('click', function(){ libreSelect(r.getAttribute('data-p')); }); })(rows[i]); }
+  var m=$('lbMinus'), pl=$('lbPlus');
+  if(m) m.addEventListener('click', function(){ libreAdjust(-1); });
+  if(pl) pl.addEventListener('click', function(){ libreAdjust(1); });
+  var st=$('lbStart'); if(st) st.addEventListener('click', libreStart);
+}
+function libreStart(){
+  var f=S.free;
+  if(f.tiempo<=0 && f.ensayos<=0) return;
+  var label=LIBRE_MODOS[f.modo], eng, podSet=null, reshuffle=false;
+  if(label==='3 pods'){ eng='normal'; podSet=[3,4,5]; }
+  else if(label==='6 pods'){ eng='normal'; podSet=[0,1,2,3,4,5]; }
+  else if(label==='9 pods'){ eng='normal'; podSet=null; }
+  else if(label==='9 Colors'){ eng='extremo'; }
+  else if(label==='9 Colors Mix'){ eng='extremo'; reshuffle=true; }
+  else if(label==='2 pods'){ eng='2pods'; }
+  else { return; }
+  if(f.espera<=0){ S.waitMin=0; S.waitMax=0; }
+  else if(f.espera===1){ S.waitMin=500; S.waitMax=1000; }
+  else { S.waitMin=500; S.waitMax=2000; }
+  S.byTime=(f.tiempo>0);
+  if(S.byTime){ S.timeLimit=f.tiempo; S.total=999999; }
+  else { S.timeLimit=0; S.total=f.ensayos; }
+  S.libre=true; S.mode=eng; S.podSet=podSet; S.reshuffle=reshuffle;
+  S.stim=(S.waitMax>0?'fijo':'cambia');
+  S.name='RDS'; S.sport='';
+  S.seq=[]; S.idx=0; S.trial=0; S.times=[]; S.podColors=[];
+  S.running=false; S.lock=true; S.armed=false; S.stimVisible=false;
+  S.resEnsayos=0; S.deadline=0;
+  clearTimers(); clearAllPods(); closePalette(); hideCountdown(); resetGameStats();
+  if(eng==='normal'){ S.color=POD_RED; setTopPod(POD_RED); } else { setTopPod(null); }
+  show('game');
+  beginRun();
+}
+function openLibre(){ libreRender(); show('libre'); }
 function enterGame(){
   S.mode=selVal('segModo')||'normal';
+  if(S.mode==='libre'){ openLibre(); return; }
   S.stim=selVal('segEstimulo')||'cambia';
   S.total=parseInt(selVal('segEnsayos')||'15',10);
+  S.libre=false; S.byTime=false; S.podSet=null; S.reshuffle=false; S.timeLimit=0;
+  if(S.stim==='fijo'){ S.waitMin=500; S.waitMax=4000; } else { S.waitMin=0; S.waitMax=0; }
   var nm=($('user-ini-input').value||'RDS').toUpperCase().replace(/[^A-Z]/g,'').slice(0,3);
   S.name=nm||'RDS';
   S.sport=($('user-sport-select')&&$('user-sport-select').value)||'';
@@ -583,26 +712,57 @@ function startTrials(){
   S.t0=performance.now();
   S.chronoIv=setInterval(tickChrono,43);
   if($('prog')) $('prog').style.width='0%';
+  if(S.libre && S.byTime){ startLibreClock(); }
   if(S.mode==='normal'){ normalNext(); }
   else if(S.mode==='extremo'){ startExtremo(); }
   else if(S.mode==='limite'){ startLimite(); }
+  else if(S.mode==='2pods'){ twoStart(); }
+}
+function startLibreClock(){
+  S.deadline=performance.now()+S.timeLimit*1000;
+  S.limitTo=setInterval(function(){
+    var rem=S.deadline-performance.now();
+    if(rem<=0){ S.armed=false; clearTimers(); clearAllPods(); setTopPod(null); endRun(); return; }
+    var frac=1-(rem/(S.timeLimit*1000));
+    if($('prog')) $('prog').style.width=(Math.max(0,Math.min(1,frac))*100)+'%';
+    if($('trialCount')) $('trialCount').textContent=Math.ceil(rem/1000)+'s';
+  },100);
 }
 
 /* elige un indice 0-8 distinto del anterior */
-function pickIndex(prev){ var i=Math.floor(Math.random()*9); if(i===prev){ i=(i+1+Math.floor(Math.random()*8))%9; } return i; }
+function pickIndex(prev){
+  var set=(S.podSet&&S.podSet.length)?S.podSet:[0,1,2,3,4,5,6,7,8];
+  if(set.length===1) return set[0];
+  var i; do{ i=set[Math.floor(Math.random()*set.length)]; }while(i===prev);
+  return i;
+}
 
 /* === Modo Normal === */
 function normalNext(){
   if(S.trial>=S.total){ endRun(); return; }
   var i=pickIndex(S.target); S.target=i;
   clearAllPods(); lightPod(i,S.color);
-  if($('trialCount')) $('trialCount').textContent=(S.trial+1)+'/'+S.total;
+  if(!S.byTime && $('trialCount')) $('trialCount').textContent=(S.trial+1)+'/'+S.total;
   S.trialT0=performance.now(); S.armed=true;
 }
 
 /* === Modo Extremo === */
 var PALETTE=['#f2cf1b','#e23b2e','#a8e87a','#2b6fe0','#f2f2f2','#f07d1a','#ffb1a9','#1f8237','#4fc3f7']; /* orden = pod0..8 (fijo en Extremo; barajado en Limite) */
 function paletteColors(){ return PALETTE.slice(); }
+var TWO_PAIRS=[{dark:'#e23b2e',light:'#ffb1a9'},{dark:'#1f8237',light:'#a8e87a'},{dark:'#2b6fe0',light:'#4fc3f7'}];
+function twoStart(){ twoNext(); }
+function twoNext(){
+  if(!S.byTime && S.trial>=S.total){ endRun(); return; }
+  clearAllPods();
+  var pair=TWO_PAIRS[Math.floor(Math.random()*TWO_PAIRS.length)];
+  var a=Math.floor(Math.random()*9), bb;
+  do{ bb=Math.floor(Math.random()*9); }while(bb===a);
+  if(Math.random()<0.5){ S.twoDarkPos=a; lightPod(a,pair.dark); lightPod(bb,pair.light); }
+  else { S.twoDarkPos=bb; lightPod(bb,pair.dark); lightPod(a,pair.light); }
+  setTopPod(pair.dark);
+  if(!S.byTime && $('trialCount')) $('trialCount').textContent=(S.trial+1)+'/'+S.total;
+  S.trialT0=performance.now(); S.armed=true;
+}
 function startExtremo(){
   S.podColors=paletteColors();
   for(var i=0;i<9;i++) lightPod(i,S.podColors[i]);
@@ -617,9 +777,10 @@ function pickColorTarget(){
 }
 function extremoNext(){
   if(S.trial>=S.total){ endRun(); return; }
+  if(S.reshuffle){ S.podColors=shuffleArr(S.podColors); for(var k=0;k<9;k++) lightPod(k,S.podColors[k]); }
   S.tgtColor=pickColorTarget();
   setTopPod(S.tgtColor);
-  if($('trialCount')) $('trialCount').textContent=(S.trial+1)+'/'+S.total;
+  if(!S.byTime && $('trialCount')) $('trialCount').textContent=(S.trial+1)+'/'+S.total;
   S.trialT0=performance.now(); S.armed=true;
 }
 
@@ -663,29 +824,38 @@ function handleTap(i){
   if(!S.armed) return;                          // durante el hueco no penaliza
   if(S.mode==='normal'){
     if(i===S.target){
-      var rt=performance.now()-S.trialT0;
+      var rt=Math.max(0,performance.now()-S.trialT0-RT_CORR);
       S.armed=false; S.times.push(rt); S.trial++;
-      clearPod(i); updateLiveStats(rt); setProgress(S.trial/S.total);
-      if(S.trial>=S.total){ endRun(); return; }
-      if(S.stim==='fijo'){ clearAllPods(); S.coverTo=setTimeout(normalNext, 500+Math.random()*3500); }
+      clearPod(i); updateLiveStats(rt); if(!S.byTime) setProgress(S.trial/S.total);
+      if(!S.byTime && S.trial>=S.total){ endRun(); return; }
+      if(S.stim==='fijo'){ clearAllPods(); S.coverTo=setTimeout(normalNext, S.waitMin+Math.random()*(S.waitMax-S.waitMin)); }
       else { normalNext(); }
     } else { sndFail(); }                        // Normal: error pero se sigue
   } else if(S.mode==='extremo'){
     if(S.podColors[i]===S.tgtColor){
-      var rt2=performance.now()-S.trialT0;
+      var rt2=Math.max(0,performance.now()-S.trialT0-RT_CORR);
       S.armed=false; S.times.push(rt2); S.trial++;
-      updateLiveStats(rt2); setProgress(S.trial/S.total);
-      if(S.trial>=S.total){ endRun(); return; }
-      if(S.stim==='fijo'){ setTopPod(null); S.coverTo=setTimeout(extremoNext, 500+Math.random()*3500); }
+      updateLiveStats(rt2); if(!S.byTime) setProgress(S.trial/S.total);
+      if(!S.byTime && S.trial>=S.total){ endRun(); return; }
+      if(S.stim==='fijo'){ setTopPod(null); S.coverTo=setTimeout(extremoNext, S.waitMin+Math.random()*(S.waitMax-S.waitMin)); }
       else { extremoNext(); }
     } else { failRun(); }                        // color equivocado -> fin
   } else if(S.mode==='limite'){
     if(S.podColors[i]===S.tgtColor){
-      var rt3=performance.now()-S.trialT0;
+      var rt3=Math.max(0,performance.now()-S.trialT0-RT_CORR);
       S.armed=false; S.times.push(rt3); S.trial++;
       updateLiveStats(rt3);
       limiteShow(true);                          // baraja + nuevo objetivo (sin espera)
     } else { failRun(); }                        // color equivocado -> fin
+  } else if(S.mode==='2pods'){
+    if(i===S.twoDarkPos){
+      var rt4=Math.max(0,performance.now()-S.trialT0-RT_CORR);
+      S.armed=false; S.times.push(rt4); S.trial++;
+      clearPod(i); updateLiveStats(rt4); if(!S.byTime) setProgress(S.trial/S.total);
+      if(!S.byTime && S.trial>=S.total){ endRun(); return; }
+      if(S.stim==='fijo'){ clearAllPods(); setTopPod(null); S.coverTo=setTimeout(twoNext, S.waitMin+Math.random()*(S.waitMax-S.waitMin)); }
+      else { twoNext(); }
+    } else { sndFail(); }                        // pulsar el claro u otro -> error, continua
   }
 }
 
@@ -701,7 +871,7 @@ function sndOutside(){ var c=audioCtx(); if(!c) return; tone('square',300,0,c.cu
 
 /* === Lights: color corporativo de los estimulos en modo Normal === */
 var POD_RED='#e23b2e';
-function repeatGame(){ enterGame(); }
+function repeatGame(){ if(S.libre) libreStart(); else enterGame(); }
 
 function shuffleArr(a){ var i,j,t; for(i=a.length-1;i>0;i--){ j=Math.floor(Math.random()*(i+1)); t=a[i];a[i]=a[j];a[j]=t; } return a; }
 
@@ -766,6 +936,7 @@ function renderChart(times){
 }
 
 function showSaveScreen(msg){
+  var sr=document.getElementById('saveRow'); if(sr) sr.style.display=(S.libre?'none':'');
   var ov=document.getElementById('transition-overlay');
   var tx=document.getElementById('transition-text');
   if(tx) tx.textContent=msg||'Ejercicio finalizado';
@@ -947,7 +1118,7 @@ function renderRank(mode,stim,total){
 
 function goHome(){ clearTimers(); S.running=false; S.lock=true; S.stimVisible=false; S.armed=false; show('home'); }
 
-seg('segModo'); seg('segEstimulo'); seg('segEnsayos'); updateModeUI();
+seg('segModo'); seg('segEstimulo'); seg('segEnsayos'); updateModeUI(); libreInit();
 segRank('segModoR'); segRank('segEstR'); segRank('segEnsR');
 $('btnRank2').addEventListener('click', showRanking);
 $('btnGuardar').addEventListener('click', function(){
