@@ -10,7 +10,7 @@
      lo gestionan localStorage + la persistencia de Firestore en index.html.
      Por eso este SW NO intercepta las peticiones a Firebase/gstatic. */
 
-var CACHE = 'lst-v1';
+var CACHE = 'lst-v3';
 
 /* App shell: como todo el CSS/JS/logo va incrustado en index.html,
    basta con cachear ese archivo, el manifest y los iconos. */
