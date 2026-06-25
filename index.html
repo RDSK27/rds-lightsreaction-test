@@ -143,14 +143,18 @@ if('serviceWorker' in navigator){
   .libre-row .libre-k{ font-weight:700; letter-spacing:1.5px; text-transform:uppercase; font-size:14px; }
   .libre-row .libre-v{ font-weight:800; font-size:16px; }
   .libre-row.sel{ background:var(--rojo); color:#fff; border-color:var(--rojo); }
-  .libre-ctrls{ display:flex; gap:14px; justify-content:center; margin-top:4px; }
-  .libre-pm{
-    width:96px; height:58px; border-radius:12px; border:2px solid #6f6f6f;
-    background:var(--ring); color:#1a1a1a; font-size:32px; font-weight:800; line-height:1;
-    text-shadow:0 1px 0 rgba(255,255,255,.6); cursor:pointer;
-    box-shadow:0 3px 7px rgba(0,0,0,.5), inset 0 2px 3px rgba(255,255,255,.4), inset 0 -3px 6px rgba(0,0,0,.35);
+  .libre-rocker{
+    display:flex; width:min(260px,86%); height:58px; margin:6px auto 2px;
+    border-radius:14px; overflow:hidden; border:1px solid #3a3a3a;
+    box-shadow:0 2px 6px rgba(0,0,0,.45);
   }
-  .libre-pm:active{ transform:translateY(1px); }
+  .libre-rocker button{
+    flex:1; border:0; cursor:pointer; font-family:inherit;
+    font-size:30px; font-weight:700; line-height:1; color:#e6e6e6;
+    background:#222222; transition:background .1s, color .1s;
+  }
+  .libre-rocker button:first-child{ border-right:1px solid #3a3a3a; }
+  .libre-rocker button:active{ background:var(--rojo); color:#fff; }
   .libre-start{
     width:80%; max-width:240px; margin:8px auto 0; padding:12px; border:none; border-radius:10px; cursor:pointer;
     background:radial-gradient(circle at 35% 30%, #e84030 0%, #b03020 45%, #7a1a10 100%);
@@ -265,6 +269,9 @@ if('serviceWorker' in navigator){
   .btn-save{flex:1;height:var(--ah);background:var(--rojo);color:#fff;border:0;border-radius:0;font-family:inherit;font-weight:700;letter-spacing:1px;text-transform:uppercase;font-size:13px;cursor:pointer;}
   .btn-save:disabled{background:#9A9A9A;}
   .btn-rank2{flex:1;height:var(--ah);background:#fff;color:var(--rojo);border:2px solid var(--rojo);border-radius:0;font-family:inherit;font-weight:700;letter-spacing:1px;text-transform:uppercase;font-size:13px;cursor:pointer;}
+  .libre-count{text-align:center;margin:10px 0 2px;}
+  .libre-count .lc-k{font-weight:700;font-size:0.78rem;letter-spacing:0.08em;text-transform:uppercase;color:#9A9A9A;}
+  .libre-count .lc-v{font-weight:800;font-size:2.3rem;line-height:1.05;color:var(--rojo);}
   .seg-sm button{font-size:12px;padding:7px 4px;letter-spacing:1px;}
   .rank-seg-label{text-align:center;font-weight:700;letter-spacing:2px;text-transform:uppercase;font-size:10px;color:#999;margin:6px 0 3px;}
   .rank-screen-title { font-size:1.2rem; font-weight:900; letter-spacing:0.1em; text-transform:uppercase; color:#111; text-align:center; background:#fff; padding:9px 14px 7px; border-bottom:3px solid #b03020; margin-bottom:10px; }
@@ -300,6 +307,8 @@ if('serviceWorker' in navigator){
   .start-wrap:active { transform:translateY(3px); box-shadow:0 2px 6px rgba(0,0,0,0.6); }
   .start-btn { width:70px; height:70px; border-radius:50%; background:radial-gradient(circle at 35% 30%, #e84030 0%, #b03020 45%, #7a1a10 100%); border:none; color:#fff; font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif; font-weight:900; font-size:0.6rem; letter-spacing:0.18em; text-transform:uppercase; cursor:pointer; position:relative; box-shadow:inset 0 2px 4px rgba(255,255,255,0.28), inset 0 -3px 6px rgba(0,0,0,0.5); transition:transform 0.08s; }
   .start-btn:active { box-shadow:inset 0 3px 7px rgba(0,0,0,0.6); }
+  .start-btn.libre-btn{ background:radial-gradient(circle at 35% 30%, #555 0%, #222 45%, #000 100%); }
+  .start-btn.libre-btn.armed{ background:radial-gradient(circle at 35% 30%, #e84030 0%, #b03020 45%, #7a1a10 100%); }
   #user-name-bar { width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0 0 5px; box-sizing:border-box; gap:0; }
 
   /* Overlay "Ejercicio finalizado" (modal a pantalla completa, 1s antes de resultados) */
@@ -327,10 +336,10 @@ if('serviceWorker' in navigator){
     </div>
 
     <div class="segment" id="segModo">
-      <button class="sel" data-v="normal">Normal</button>
+      <button class="sel" data-v="normal">Normal 1</button>
+      <button data-v="2pods">Normal 2</button>
       <button data-v="extremo">Extremo</button>
       <button data-v="limite">L&#237;mite</button>
-      <button data-v="libre">Libre</button>
     </div>
 
     <div class="segment" id="segEstimulo">
@@ -342,6 +351,10 @@ if('serviceWorker' in navigator){
       <button class="sel" data-v="15">15</button>
       <button data-v="30">30</button>
       <button data-v="60">60</button>
+    </div>
+
+    <div class="start-wrap" id="btn-libre-wrap">
+      <button id="btn-libre" class="start-btn libre-btn" ontouchend="event.stopPropagation();" onclick="toggleLibreArm()">Libre</button>
     </div>
 
     <div style="border:3px solid #b03020;border-radius:10px;background-color:#222;background-image:linear-gradient(rgba(0,0,0,0.20),rgba(0,0,0,0.28)),var(--carbon);background-size:cover;background-position:center;background-repeat:no-repeat;padding:10px 12px 16px;display:flex;flex-direction:column;align-items:center;gap:8px;width:92%;box-sizing:border-box;margin:auto auto 28px;">
@@ -439,9 +452,9 @@ if('serviceWorker' in navigator){
         <button type="button" class="libre-row" data-p="ensayos"><span class="libre-k">Ensayos</span><span class="libre-v" id="lvEnsayos">0</span></button>
         <button type="button" class="libre-row" data-p="espera"><span class="libre-k">Espera</span><span class="libre-v" id="lvEspera">0</span></button>
         <button type="button" class="libre-row" data-p="modo"><span class="libre-k">Modo</span><span class="libre-v" id="lvModo">3 pods</span></button>
-        <div class="libre-ctrls">
-          <button type="button" class="libre-pm" id="lbMinus">&#8722;</button>
-          <button type="button" class="libre-pm" id="lbPlus">+</button>
+        <div class="libre-rocker">
+          <button type="button" id="lbMinus">&#8722;</button>
+          <button type="button" id="lbPlus">+</button>
         </div>
         <button type="button" class="libre-start" id="lbStart">Empezar</button>
       </div>
@@ -473,6 +486,7 @@ if('serviceWorker' in navigator){
         </div>
       </div>
       <div class="res-chart" id="resChart"></div>
+      <div class="libre-count" id="libreCount" style="display:none;"></div>
       <div class="save-row" id="saveRow">
         <button class="btn-save" id="btnGuardar">Guardar resultado</button>
         <button class="btn-rank2" id="btnRank2">Ranking</button>
@@ -500,7 +514,8 @@ if('serviceWorker' in navigator){
     <div class="rank-body">
       <div class="rank-screen-title">Ranking completo</div>
       <div class="rank-tabs" id="segModoR">
-        <button class="rank-tab" data-v="normal">Normal</button>
+        <button class="rank-tab" data-v="normal">Normal 1</button>
+        <button class="rank-tab" data-v="2pods">Normal 2</button>
         <button class="rank-tab" data-v="extremo">Extremo</button>
         <button class="rank-tab" data-v="limite">L&#237;mite</button>
       </div>
@@ -576,11 +591,17 @@ function seg(id){
 }
 function updateModeUI(){
   var mode=selVal('segModo')||'normal';
-  var est=$('segEstimulo'), ens=$('segEnsayos');
-  var dimEst=(mode==='limite'||mode==='libre');
+  var est=$('segEstimulo'), ens=$('segEnsayos'), md=$('segModo');
   if(mode==='limite'){ setSeg('segEstimulo','cambia'); }
-  if(est){ est.classList.toggle('seg-dim', dimEst); }
-  if(ens){ ens.classList.toggle('seg-dim', mode==='libre'); }
+  var armed=S.libreArmed;
+  if(md){ md.classList.toggle('seg-dim', armed); }
+  if(est){ est.classList.toggle('seg-dim', armed || mode==='limite'); }
+  if(ens){ ens.classList.toggle('seg-dim', armed); }
+}
+function toggleLibreArm(){
+  S.libreArmed=!S.libreArmed;
+  var btn=$('btn-libre'); if(btn) btn.classList.toggle('armed', S.libreArmed);
+  updateModeUI();
 }
 function selVal(id){ var b=$(id).querySelector('button.sel'); return b?b.getAttribute('data-v'):null; }
 
@@ -592,7 +613,7 @@ var S={mode:'normal',stim:'cambia',total:15,name:'RDS',sport:'',
 var RT_CORR=30; /* correccion latencia tactil (ms), igual que Reaction Speed */
 var LIBRE_MODOS=['3 pods','6 pods','9 pods','9 Colors','9 Colors Mix','2 pods'];
 S.free={sel:'tiempo',tiempo:0,ensayos:0,espera:0,modo:0};
-S.libre=false; S.byTime=false; S.podSet=null; S.waitMin=0; S.waitMax=0; S.timeLimit=0; S.reshuffle=false;
+S.libre=false; S.byTime=false; S.podSet=null; S.waitMin=0; S.waitMax=0; S.timeLimit=0; S.reshuffle=false; S.libreArmed=false;
 
 function filterInitials(el){ el.value=el.value.replace(/[^A-Za-z]/g,'').toUpperCase(); }
 /* === Lights: helpers de pods y pantalla === */
@@ -666,7 +687,7 @@ function libreStart(){
 function openLibre(){ libreRender(); show('libre'); }
 function enterGame(){
   S.mode=selVal('segModo')||'normal';
-  if(S.mode==='libre'){ openLibre(); return; }
+  if(S.libreArmed){ openLibre(); return; }
   S.stim=selVal('segEstimulo')||'cambia';
   S.total=parseInt(selVal('segEnsayos')||'15',10);
   S.libre=false; S.byTime=false; S.podSet=null; S.reshuffle=false; S.timeLimit=0;
@@ -937,6 +958,8 @@ function renderChart(times){
 
 function showSaveScreen(msg){
   var sr=document.getElementById('saveRow'); if(sr) sr.style.display=(S.libre?'none':'');
+  var lc=document.getElementById('libreCount');
+  if(lc){ if(S.libre){ lc.innerHTML='<div class="lc-k">'+(S.byTime?'Ensayos conseguidos':'Ensayos')+'</div><div class="lc-v">'+S.resEnsayos+'</div>'; lc.style.display=''; } else { lc.style.display='none'; } }
   var ov=document.getElementById('transition-overlay');
   var tx=document.getElementById('transition-text');
   if(tx) tx.textContent=msg||'Ejercicio finalizado';
