@@ -613,7 +613,7 @@ var S={mode:'normal',stim:'cambia',total:15,name:'RDS',sport:'',
 var RT_CORR=30; /* correccion latencia tactil (ms), igual que Reaction Speed */
 var LIBRE_MODOS=['3 pods','6 pods','9 pods','9 Colors','9 Colors Mix','2 pods'];
 S.free={sel:'tiempo',tiempo:0,ensayos:0,espera:0,modo:0};
-S.libre=false; S.byTime=false; S.podSet=null; S.waitMin=0; S.waitMax=0; S.timeLimit=0; S.reshuffle=false; S.libreArmed=false;
+S.libre=false; S.byTime=false; S.podSet=null; S.waitMin=0; S.waitMax=0; S.timeLimit=0; S.reshuffle=false; S.libreArmed=false; S.waiting=false;
 
 function filterInitials(el){ el.value=el.value.replace(/[^A-Za-z]/g,'').toUpperCase(); }
 /* === Lights: helpers de pods y pantalla === */
@@ -733,6 +733,7 @@ function startTrials(){
   S.t0=performance.now();
   S.chronoIv=setInterval(tickChrono,43);
   if($('prog')) $('prog').style.width='0%';
+  S.waiting=false;
   if(S.libre && S.byTime){ startLibreClock(); }
   if(S.mode==='normal'){ normalNext(); }
   else if(S.mode==='extremo'){ startExtremo(); }
@@ -761,7 +762,7 @@ function pickIndex(prev){
 /* === Modo Normal === */
 function normalNext(){
   if(S.trial>=S.total){ endRun(); return; }
-  var i=pickIndex(S.target); S.target=i;
+  var i=pickIndex(S.target); S.target=i; S.waiting=false;
   clearAllPods(); lightPod(i,S.color);
   if(!S.byTime && $('trialCount')) $('trialCount').textContent=(S.trial+1)+'/'+S.total;
   S.trialT0=performance.now(); S.armed=true;
@@ -775,6 +776,7 @@ function twoStart(){ twoNext(); }
 function twoNext(){
   if(!S.byTime && S.trial>=S.total){ endRun(); return; }
   clearAllPods();
+  S.waiting=false;
   var pair=TWO_PAIRS[Math.floor(Math.random()*TWO_PAIRS.length)];
   var a=Math.floor(Math.random()*9), bb;
   do{ bb=Math.floor(Math.random()*9); }while(bb===a);
@@ -837,9 +839,29 @@ function finishLimiteRun(){
 /* toque sobre la rejilla (delegacion) */
 function onGridTap(e){
   if(!S.running||S.lock) return;
-  var pod=(e.target&&e.target.closest)?e.target.closest('.pod'):null;
-  if(!pod){ sndOutside(); return; }            // tocar fuera de pod -> aviso, sigue
-  handleTap(parseInt(pod.getAttribute('data-i'),10));
+  var idxs=[], outside=false;
+  var list=(e.touches&&e.touches.length)?e.touches:(e.changedTouches||null);
+  if(list&&list.length){
+    for(var t=0;t<list.length;t++){
+      var el=list[t].target, pod=(el&&el.closest)?el.closest('.pod'):null;
+      if(pod){ var ix=parseInt(pod.getAttribute('data-i'),10); if(idxs.indexOf(ix)<0) idxs.push(ix); }
+      else outside=true;
+    }
+  } else {
+    var p2=(e.target&&e.target.closest)?e.target.closest('.pod'):null;
+    if(p2) idxs.push(parseInt(p2.getAttribute('data-i'),10)); else outside=true;
+  }
+  handleTouches(idxs, outside);
+}
+function handleTouches(idxs, outside){
+  var penaliza=(S.mode==='normal'||S.mode==='2pods');
+  if(!S.armed){
+    if(penaliza && S.waiting && idxs.length){ failRun('Error, has pulsado antes de tiempo.'); }
+    return;                                     // fuera del hueco no penaliza (otros modos)
+  }
+  if(idxs.length===0){ if(outside) sndOutside(); return; }
+  if(penaliza && idxs.length>1){ failRun('Error, has pulsado m\u00e1s de un pod.'); return; }
+  handleTap(idxs[0]);
 }
 function handleTap(i){
   if(!S.armed) return;                          // durante el hueco no penaliza
@@ -849,9 +871,9 @@ function handleTap(i){
       S.armed=false; S.times.push(rt); S.trial++;
       clearPod(i); updateLiveStats(rt); if(!S.byTime) setProgress(S.trial/S.total);
       if(!S.byTime && S.trial>=S.total){ endRun(); return; }
-      if(S.stim==='fijo'){ clearAllPods(); S.coverTo=setTimeout(normalNext, S.waitMin+Math.random()*(S.waitMax-S.waitMin)); }
+      if(S.stim==='fijo'){ S.waiting=true; clearAllPods(); S.coverTo=setTimeout(normalNext, S.waitMin+Math.random()*(S.waitMax-S.waitMin)); }
       else { normalNext(); }
-    } else { sndFail(); }                        // Normal: error pero se sigue
+    } else { failRun('Error, te has equivocado de pod.'); }   // Normal: pod erroneo -> fin
   } else if(S.mode==='extremo'){
     if(S.podColors[i]===S.tgtColor){
       var rt2=Math.max(0,performance.now()-S.trialT0-RT_CORR);
@@ -874,9 +896,9 @@ function handleTap(i){
       S.armed=false; S.times.push(rt4); S.trial++;
       clearPod(i); updateLiveStats(rt4); if(!S.byTime) setProgress(S.trial/S.total);
       if(!S.byTime && S.trial>=S.total){ endRun(); return; }
-      if(S.stim==='fijo'){ clearAllPods(); setTopPod(null); S.coverTo=setTimeout(twoNext, S.waitMin+Math.random()*(S.waitMax-S.waitMin)); }
+      if(S.stim==='fijo'){ S.waiting=true; clearAllPods(); setTopPod(null); S.coverTo=setTimeout(twoNext, S.waitMin+Math.random()*(S.waitMax-S.waitMin)); }
       else { twoNext(); }
-    } else { sndFail(); }                        // pulsar el claro u otro -> error, continua
+    } else { failRun('Error, te has equivocado de pod.'); }   // claro u otro -> fin
   }
 }
 
@@ -886,8 +908,8 @@ function updateLiveStats(rt){
   if($('stAvg')) $('stAvg').textContent=c.n?String(Math.round(c.avg)):'--';
 }
 
-function endRun(){ S.running=false; S.lock=true; S.armed=false; clearTimers(); clearAllPods(); finish(); }
-function failRun(){ S.running=false; S.lock=true; S.armed=false; clearTimers(); clearAllPods(); setTopPod(null); sndFail(); show('fail'); }
+function endRun(){ S.running=false; S.lock=true; S.armed=false; S.waiting=false; clearTimers(); clearAllPods(); finish(); }
+function failRun(msg){ S.running=false; S.lock=true; S.armed=false; S.waiting=false; clearTimers(); clearAllPods(); setTopPod(null); sndFail(); var fm=$('failMsg'); if(fm) fm.textContent=msg||'Error, has pulsado el color equivocado.'; show('fail'); }
 function sndOutside(){ var c=audioCtx(); if(!c) return; tone('square',300,0,c.currentTime,0.07,0.14); }
 
 /* === Lights: color corporativo de los estimulos en modo Normal === */
