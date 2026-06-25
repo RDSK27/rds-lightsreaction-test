@@ -565,18 +565,39 @@ function audioCtx(){
 }
 function tone(type,f0,f1,start,dur,vol){
   var ctx=AC; if(!ctx) return;
+  var t=Math.max(start, ctx.currentTime+0.012);   /* margen: nunca en el pasado -> toques rapidos no pierden el sonido */
   var o=ctx.createOscillator(), g=ctx.createGain();
-  o.type=type; o.frequency.setValueAtTime(f0,start);
-  if(f1){ o.frequency.exponentialRampToValueAtTime(f1,start+dur); }
-  g.gain.setValueAtTime(0.0001,start);
-  g.gain.exponentialRampToValueAtTime(vol,start+0.006);
-  g.gain.exponentialRampToValueAtTime(0.0001,start+dur);
+  o.type=type; o.frequency.setValueAtTime(f0,t);
+  if(f1){ o.frequency.exponentialRampToValueAtTime(f1,t+dur); }
+  g.gain.setValueAtTime(0.0001,t);
+  g.gain.exponentialRampToValueAtTime(vol,t+0.006);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
   o.connect(g); g.connect(ctx.destination);
-  o.start(start); o.stop(start+dur+0.03);
+  o.start(t); o.stop(t+dur+0.03);
 }
 function sndButton(){ var c=audioCtx(); if(!c) return; tone('triangle',520,0,c.currentTime,0.055,0.16); }
 function sndSymbol(){ var c=audioCtx(); if(!c) return; tone('sine',780,940,c.currentTime,0.085,0.20); }
 function sndFail(){ var c=audioCtx(); if(!c) return; var t=c.currentTime; tone('square',196,0,t,0.14,0.17); tone('square',146,0,t+0.13,0.20,0.17); }
+var _tapBuf=null;
+function tapBuffer(c){
+  if(_tapBuf) return _tapBuf;
+  var n=Math.floor(c.sampleRate*0.025);
+  var buf=c.createBuffer(1,n,c.sampleRate), d=buf.getChannelData(0);
+  for(var i=0;i<n;i++){ d[i]=Math.random()*2-1; }   /* ruido plano; la forma la da la envolvente */
+  _tapBuf=buf; return buf;
+}
+function sndTap(){
+  var c=audioCtx(); if(!c) return;
+  var t=c.currentTime+0.005;
+  var src=c.createBufferSource(); src.buffer=tapBuffer(c);
+  var hp=c.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=1400;  /* quita el grave -> seco */
+  var g=c.createGain();
+  g.gain.setValueAtTime(0.0001,t);
+  g.gain.exponentialRampToValueAtTime(0.4,t+0.001);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+0.018);
+  src.connect(hp); hp.connect(g); g.connect(c.destination);
+  src.start(t); src.stop(t+0.03);
+}
 
 
 function seg(id){
@@ -867,7 +888,7 @@ function handleTap(i){
   if(!S.armed) return;                          // durante el hueco no penaliza
   if(S.mode==='normal'){
     if(i===S.target){
-      var rt=Math.max(0,performance.now()-S.trialT0-RT_CORR);
+      sndTap(); var rt=Math.max(0,performance.now()-S.trialT0-RT_CORR);
       S.armed=false; S.times.push(rt); S.trial++;
       clearPod(i); updateLiveStats(rt); if(!S.byTime) setProgress(S.trial/S.total);
       if(!S.byTime && S.trial>=S.total){ endRun(); return; }
@@ -876,7 +897,7 @@ function handleTap(i){
     } else { failRun('Error, te has equivocado de pod.'); }   // Normal: pod erroneo -> fin
   } else if(S.mode==='extremo'){
     if(S.podColors[i]===S.tgtColor){
-      var rt2=Math.max(0,performance.now()-S.trialT0-RT_CORR);
+      sndTap(); var rt2=Math.max(0,performance.now()-S.trialT0-RT_CORR);
       S.armed=false; S.times.push(rt2); S.trial++;
       updateLiveStats(rt2); if(!S.byTime) setProgress(S.trial/S.total);
       if(!S.byTime && S.trial>=S.total){ endRun(); return; }
@@ -885,14 +906,14 @@ function handleTap(i){
     } else { failRun(); }                        // color equivocado -> fin
   } else if(S.mode==='limite'){
     if(S.podColors[i]===S.tgtColor){
-      var rt3=Math.max(0,performance.now()-S.trialT0-RT_CORR);
+      sndTap(); var rt3=Math.max(0,performance.now()-S.trialT0-RT_CORR);
       S.armed=false; S.times.push(rt3); S.trial++;
       updateLiveStats(rt3);
       limiteShow(true);                          // baraja + nuevo objetivo (sin espera)
     } else { failRun(); }                        // color equivocado -> fin
   } else if(S.mode==='2pods'){
     if(i===S.twoDarkPos){
-      var rt4=Math.max(0,performance.now()-S.trialT0-RT_CORR);
+      sndTap(); var rt4=Math.max(0,performance.now()-S.trialT0-RT_CORR);
       S.armed=false; S.times.push(rt4); S.trial++;
       clearPod(i); updateLiveStats(rt4); if(!S.byTime) setProgress(S.trial/S.total);
       if(!S.byTime && S.trial>=S.total){ endRun(); return; }
@@ -1184,7 +1205,7 @@ for(var i=0;i<navs.length;i++){
 function unlockAudio(){ audioCtx(); document.removeEventListener('touchstart',unlockAudio); document.removeEventListener('mousedown',unlockAudio); }
 document.addEventListener('touchstart',unlockAudio,{passive:true});
 document.addEventListener('mousedown',unlockAudio);
-document.addEventListener('click', function(e){ if(e.target.closest && e.target.closest('button')) sndButton(); }, true);
+document.addEventListener('click', function(e){ if(e.target.closest && e.target.closest('button') && !e.target.closest('.pod') && !e.target.closest('.toppod')) sndButton(); }, true);
 
 /* === Lights: cableado seleccion de color === */
 (function(){
