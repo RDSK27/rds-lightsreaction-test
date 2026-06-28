@@ -19,7 +19,11 @@ var SHELL = [
   'manifest.json',
   'apple-touch-icon.png',
   'icon-192.png',
-  'icon-512.png'
+  'icon-512.png',
+  'assets/carbon.webp',
+  'assets/mesh.webp',
+  'assets/banner.webp',
+  'assets/logo.webp'
 ];
 
 self.addEventListener('install', function(event){
