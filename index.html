@@ -284,13 +284,13 @@ if('serviceWorker' in navigator){
   .rank-full-row { display:flex; align-items:center; gap:8px; padding:5px 14px; border-bottom:1px solid #f0f0f0; }
   .rank-full-row.rank-full-me { background:#fff2ee; box-shadow:inset 3px 0 0 #b03020; }
   .rank-full-row.rank-full-me .rank-full-name { color:#b03020; font-weight:900; }
-  .rank-full-pos { font-size:0.72rem; font-weight:900; color:#ccc; width:22px; }
+  .rank-full-pos { font-size:0.72rem; font-weight:900; color:#444; width:22px; }
   .rank-full-pos.gold { color:#c9a227; }
   .rank-full-pos.silver { color:#8e9eab; }
   .rank-full-pos.bronze { color:#c07941; }
   .rank-full-name { flex:1; font-size:0.72rem; font-weight:700; color:#111; }
   .rank-full-ms { font-size:0.72rem; font-weight:900; color:#b03020; }
-  .rank-full-date { font-size:0.5rem; color:#ccc; }
+  .rank-full-date { font-size:0.5rem; color:#444; }
   .rank-full-empty { text-align:center; padding:24px; font-size:0.62rem; color:#ccc; letter-spacing:0.1em; }
   #segModoR,#segEstR,#segEnsR{margin-bottom:4px;}
   #rkList{margin-top:10px;}
@@ -372,9 +372,10 @@ if('serviceWorker' in navigator){
   <div id="user-name-bar">
     <div style="display:flex;width:200px;gap:0;margin:0 auto;">
       <input id="user-ini-input" type="text" maxlength="3" placeholder="INI"
+        inputmode="text" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false" enterkeyhint="done"
         style="width:100px;flex:none;padding:7px 4px;border:2px solid #b03020;border-radius:4px 0 0 0;border-right:none;font-size:0.8rem;font-family:Arial,sans-serif;text-align:center;color:#111;background:#fff;outline:none;box-sizing:border-box;"
         oninput="filterInitials(this)">
-      <select id="user-sport-select"
+      <select id="user-sport-select" onchange="this.blur();"
         style="width:100px;flex:none;padding:7px 4px;border:2px solid #b03020;border-radius:0 4px 0 0;font-size:0.7rem;font-family:Arial,sans-serif;color:#111;background:#fff;outline:none;box-sizing:border-box;">
         <option value="ATL">Atletismo</option>
         <option value="AUT">Automovilismo</option>
@@ -643,7 +644,7 @@ var LIBRE_MODOS=['3 pods','6 pods','9 pods','9 Colors','9 Colors Mix','2 pods'];
 S.free={sel:'tiempo',tiempo:0,ensayos:0,espera:0,modo:0};
 S.libre=false; S.byTime=false; S.podSet=null; S.waitMin=0; S.waitMax=0; S.timeLimit=0; S.reshuffle=false; S.libreArmed=false; S.waiting=false;
 
-function filterInitials(el){ el.value=el.value.replace(/[^A-Za-z]/g,'').toUpperCase(); }
+function filterInitials(el){ var v=el.value.replace(/[^A-Za-z]/g,'').toUpperCase(); if(v!==el.value){ el.value=v; } }
 /* === Lights: helpers de pods y pantalla === */
 function lightPod(i,color){ var p=$('pod'+i); if(!p) return; p.style.setProperty('--pod-color',color); p.classList.add('lit'); }
 function clearPod(i){ var p=$('pod'+i); if(!p) return; p.classList.remove('lit'); p.style.removeProperty('--pod-color'); }
