@@ -82,7 +82,7 @@ if('serviceWorker' in navigator){
   /* ---------- Header ---------- */
   header{ width:100%; flex-shrink:0; background:#000000; border-bottom:4px solid #b03020; display:flex; flex-direction:column; align-items:center; padding:0; padding-top:env(safe-area-inset-top,0px); }
   header img{ width:100%; height:auto; display:block; margin-bottom:0; }
-  .subtitle{ display:block; width:100%; box-sizing:border-box; font-size:0.58rem; letter-spacing:0.14em; color:#cfcfcf; text-transform:none; padding:8px 0 8px; text-align:center; background:linear-gradient(rgba(0,0,0,0.34),rgba(0,0,0,0.34)),var(--carbon); background-size:cover; background-position:center; }
+  .subtitle{ display:block; width:100%; box-sizing:border-box; font-size:0.58rem; letter-spacing:0.14em; color:#cfcfcf; text-transform:none; padding:8px 0 8px; text-align:center; background:#000000; }
 
   /* ---------- Cuerpo ---------- */
   main{flex:1;padding:8px 16px 4px;display:flex;flex-direction:column;gap:7px;gap:clamp(4px,1svh,9px);background:#FFFFFF;}
@@ -102,9 +102,7 @@ if('serviceWorker' in navigator){
   }
 
   .segment{
-    display:flex;border-top:4px solid #b03020;
-    background:linear-gradient(rgba(0,0,0,0.20),rgba(0,0,0,0.28)),var(--carbon);
-    background-size:cover;background-position:center;
+    display:flex;border-top:4px solid #b03020;background:#111;
   }
   .segment button{
     flex:1;border:0;background:transparent;color:#fff;
@@ -371,7 +369,7 @@ if('serviceWorker' in navigator){
       <button data-v="60">60</button>
     </div>
 
-    <div style="border:3px solid #b03020;border-radius:10px;background-color:#222;background-image:linear-gradient(rgba(0,0,0,0.20),rgba(0,0,0,0.28)),var(--carbon);background-size:cover;background-position:center;background-repeat:no-repeat;padding:22px 12px 26px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;width:92%;min-height:250px;box-sizing:border-box;margin:auto auto 28px;">
+    <div style="border:3px solid #b03020;border-radius:10px;background-color:#000000;padding:22px 12px 26px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;width:92%;min-height:250px;box-sizing:border-box;margin:auto auto 28px;">
       <div class="home-btn-row">
         <div class="start-wrap" id="btn-libre-wrap">
           <button id="btn-libre" class="start-btn libre-btn" ontouchend="event.stopPropagation();" onclick="toggleLibreArm()">Libre</button>
