@@ -11,7 +11,7 @@
    - Firebase/gstatic/externos -> NO se interceptan (los gestiona el
      index.html con la persistencia de Firestore + localStorage). */
 
-var CACHE = 'lst-v10';
+var CACHE = 'lst-v11';
 
 var SHELL = [
   './',
@@ -23,7 +23,7 @@ var SHELL = [
   'assets/carbon.webp',
   'assets/mesh.webp',
   'assets/banner.webp',
-  'assets/logo.webp'
+  'assets/logo.png'
 ];
 
 self.addEventListener('install', function(event){
