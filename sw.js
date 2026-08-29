@@ -11,7 +11,7 @@
    - Firebase/gstatic/externos -> NO se interceptan (los gestiona el
      index.html con la persistencia de Firestore + localStorage). */
 
-var CACHE = 'lst-v14';
+var CACHE = 'lst-v15';
 
 var SHELL = [
   './',
