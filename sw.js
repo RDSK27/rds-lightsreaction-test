@@ -11,7 +11,7 @@
    - Firebase/gstatic/externos -> NO se interceptan (los gestiona el
      index.html con la persistencia de Firestore + localStorage). */
 
-var CACHE = 'lst-v20';
+var CACHE = 'lst-v21';
 
 var SHELL = [
   './',
@@ -60,7 +60,7 @@ self.addEventListener('fetch', function(event){
   if(isHTML){
     /* network-first: lo ultimo cuando hay red; cache si no hay */
     event.respondWith(
-      fetch(req).then(function(res){
+      fetch(req, {cache:'no-store'}).then(function(res){
         if(res && res.status === 200){
           var copy = res.clone();
           caches.open(CACHE).then(function(c){ c.put(req, copy); });

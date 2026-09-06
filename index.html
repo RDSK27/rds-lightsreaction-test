@@ -321,7 +321,6 @@ if('serviceWorker' in navigator){
   .start-btn { width:70px; height:70px; border-radius:50%; background:radial-gradient(circle at 35% 30%, #e84030 0%, #b03020 45%, #7a1a10 100%); border:none; color:#fff; font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif; font-weight:900; font-size:0.6rem; letter-spacing:0.18em; text-transform:uppercase; cursor:pointer; position:relative; box-shadow:inset 0 2px 4px rgba(255,255,255,0.28), inset 0 -3px 6px rgba(0,0,0,0.5); transition:transform 0.08s; }
   .start-btn:active { box-shadow:inset 0 3px 7px rgba(0,0,0,0.6); }
   .start-btn.libre-btn{ background:radial-gradient(circle at 35% 30%, #555 0%, #222 45%, #000 100%); }
-  .start-btn.libre-btn.armed{ background:radial-gradient(circle at 35% 30%, #e84030 0%, #b03020 45%, #7a1a10 100%); }
   .home-btn-row{ display:flex; align-items:center; justify-content:center; gap:16px; width:100%; margin:15px auto 0; }
   .home-btn-row .start-wrap{ margin:0; }
   .app-ver{ margin-top:auto; text-align:center; color:#9a9a9a; font-size:0.72rem; letter-spacing:0.12em; font-family:Arial,sans-serif; padding-top:6px; }
@@ -423,7 +422,7 @@ if('serviceWorker' in navigator){
       </select>
     </div>
   </div>
-    <div class="app-ver">v20</div>
+    <div class="app-ver">v21</div>
     </div>
 
   </main>
@@ -640,17 +639,9 @@ function seg(id){
 }
 function updateModeUI(){
   var mode=selVal('segModo')||'normal';
-  var est=$('segEstimulo'), ens=$('segEnsayos'), md=$('segModo');
+  var est=$('segEstimulo');
   if(mode==='limite'){ setSeg('segEstimulo','cambia'); }
-  var armed=S.libreArmed;
-  if(md){ md.classList.toggle('seg-dim', armed); }
-  if(est){ est.classList.toggle('seg-dim', armed || mode==='limite'); }
-  if(ens){ ens.classList.toggle('seg-dim', armed); }
-}
-function toggleLibreArm(){
-  S.libreArmed=!S.libreArmed;
-  var btn=$('btn-libre'); if(btn) btn.classList.toggle('armed', S.libreArmed);
-  updateModeUI();
+  if(est){ est.classList.toggle('seg-dim', mode==='limite'); }
 }
 function selVal(id){ var b=$(id).querySelector('button.sel'); return b?b.getAttribute('data-v'):null; }
 
@@ -662,7 +653,7 @@ var S={mode:'normal',stim:'cambia',total:15,name:'RDS',sport:'',
 var RT_CORR=30; /* correccion latencia tactil (ms), igual que Reaction Speed */
 var LIBRE_MODOS=['3 pods','6 pods','9 pods','9 Colors','9 Colors Mix','2 pods'];
 S.free={sel:'tiempo',tiempo:0,ensayos:0,espera:0,modo:0};
-S.libre=false; S.byTime=false; S.podSet=null; S.waitMin=0; S.waitMax=0; S.timeLimit=0; S.reshuffle=false; S.libreArmed=false; S.waiting=false;
+S.libre=false; S.byTime=false; S.podSet=null; S.waitMin=0; S.waitMax=0; S.timeLimit=0; S.reshuffle=false; S.waiting=false;
 
 function filterInitials(el){ var v=el.value.replace(/[^A-Za-z]/g,'').toUpperCase(); if(v!==el.value){ el.value=v; } }
 /* === Lights: helpers de pods y pantalla === */
@@ -736,7 +727,6 @@ function libreStart(){
 function openLibre(){ libreRender(); show('libre'); }
 function enterGame(){
   S.mode=selVal('segModo')||'normal';
-  if(S.libreArmed){ openLibre(); return; }
   S.stim=selVal('segEstimulo')||'cambia';
   S.total=parseInt(selVal('segEnsayos')||'15',10);
   S.libre=false; S.byTime=false; S.podSet=null; S.reshuffle=false; S.timeLimit=0;
