@@ -11,7 +11,7 @@
    - Firebase/gstatic/externos -> NO se interceptan (los gestiona el
      index.html con la persistencia de Firestore + localStorage). */
 
-var CACHE = 'lst-v28';
+var CACHE = 'lst-v29';
 
 var SHELL = [
   './',
@@ -58,18 +58,22 @@ self.addEventListener('fetch', function(event){
   var isHTML = req.mode === 'navigate' || accept.indexOf('text/html') !== -1;
 
   if(isHTML){
-    /* network-first: lo ultimo cuando hay red; cache si no hay */
+    /* network-first: lo ultimo cuando hay red; cache si no hay.
+       OJO (2026-09-29): la pagina se guarda/busca con la clave fija
+       'index.html', NUNCA con el request tal cual -- si se usara el
+       request, la URL con ?ini=&dep= que anade SuiteRDS al entrar desde
+       ahi (o su ausencia en otras visitas) generaria una clave distinta
+       cada vez, y caches.match(req) casi nunca encontraria la copia
+       guardada -- rompia el offline justo al entrar desde SuiteRDS. */
     event.respondWith(
       fetch(req, {cache:'no-store'}).then(function(res){
         if(res && res.status === 200){
           var copy = res.clone();
-          caches.open(CACHE).then(function(c){ c.put(req, copy); });
+          caches.open(CACHE).then(function(c){ c.put('index.html', copy); });
         }
         return res;
       }).catch(function(){
-        return caches.match(req).then(function(m){
-          return m || caches.match('index.html') || caches.match('./');
-        });
+        return caches.match('index.html').then(function(m){ return m || caches.match('./'); });
       })
     );
     return;
