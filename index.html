@@ -423,7 +423,7 @@ if('serviceWorker' in navigator){
       </select>
     </div>
   </div>
-    <div class="app-ver">v31</div>
+    <div class="app-ver">v32</div>
     <div id="pending-sync" class="pending-sync"></div>
     </div>
 
@@ -575,7 +575,7 @@ var SYMS = [["circle","cross"],["circle","dot"],["circle","hline"],["circle","vl
 var SWG=4.5;
 
 function $(id){ return document.getElementById(id); }
-function show(id){ var s=document.querySelectorAll('.screen'); for(var i=0;i<s.length;i++) s[i].classList.remove('active'); $(id).classList.add('active'); document.body.classList.toggle('home-active', id==='home'); }
+function show(id){ if(id!=='ranking' && typeof stopRankWatch==='function') stopRankWatch(); var s=document.querySelectorAll('.screen'); for(var i=0;i<s.length;i++) s[i].classList.remove('active'); $(id).classList.add('active'); document.body.classList.toggle('home-active', id==='home'); }
 function two(n){ return (n<10?'0':'')+n; }
 function pad3(n){ return (n<10?'00':(n<100?'0':''))+n; }
 function fmtChrono2(ms){ if(ms<0)ms=0; var m=Math.floor(ms/60000), sec=Math.floor((ms%60000)/1000), mm=Math.floor(ms%1000); return two(m)+':'+two(sec)+'.'+pad3(mm); }
@@ -750,7 +750,7 @@ function enterGame(){
 }
 
 /* === Lights: arranque de la partida (START del juego) === */
-function beginRun(){
+function beginRun(){ try{ warmRank(S.mode,S.stim,S.total); }catch(e){}
   if(S.running) return;
   closePalette();
   runCountdown(function(){ startTrials(); });
@@ -1069,7 +1069,7 @@ function lbKey(mode,stim,total){ return 'rds_lst_'+mode+'_'+stim+'_'+total; }
 function loadLb(k){ try{ return JSON.parse(localStorage.getItem(k)||'[]'); }catch(e){ return []; } }
 function rankCacheKey(mode,stim,total){ return 'rds_lst_rankcache_'+mode+'_'+stim+'_'+total; }
 function loadRankCache(k){ try{ return JSON.parse(localStorage.getItem(k)||'null'); }catch(e){ return null; } }
-function saveRankCache(k,rows){ try{ localStorage.setItem(k, JSON.stringify(rows)); }catch(e){} }
+function saveRankCache(k,rows){ try{ localStorage.setItem(k, JSON.stringify(rows)); localStorage.setItem(k+'_ts', String(Date.now())); }catch(e){} }
 function sortLb(lb,mode){
   if(mode==='limite'){ lb.sort(function(a,b){ return (b.ensayos-a.ensayos)||(a.avg-b.avg); }); }
   else { lb.sort(function(a,b){ return a.avg-b.avg; }); }
@@ -1233,9 +1233,28 @@ function capName(rows,max){
   }
   return out;
 }
+/* Ranking (2026-09-30): lo que se ve es SIEMPRE la union de (a) el ranking
+   global -- en directo si hay red (onSnapshot: si otro deportista sube al
+   primer puesto se ve al momento, sin salir y volver a entrar), o la ultima
+   copia guardada si no la hay -- y (b) las marcas de ESTE dispositivo
+   (lbLocal, incluidas las aun pendientes de subir). Asi, sin conexion, se
+   ve donde queda tu marca dentro del ranking que ya conocias; al volver
+   la red, la cola de pendientes las sube y el global las incluye (se
+   deduplican por nombre+fecha+marca). */
+var rankUnsub=null;
+function stopRankWatch(){ if(rankUnsub){ try{ rankUnsub(); }catch(e){} rankUnsub=null; } }
+function mergeRank(globalRows,localRows){
+  var out=[], seen={};
+  (globalRows||[]).concat(localRows||[]).forEach(function(r){
+    var k=(r.name||'')+'|'+r.ts+'|'+r.avg+'|'+(r.ensayos||'');
+    if(!seen[k]){ seen[k]=1; out.push(r); }
+  });
+  return out;
+}
 function renderRank(mode,stim,total){
   var key=lbKey(mode,stim,total); S.rankKey=key;
   var el=$('rkList'); if(!el) return;
+  stopRankWatch();
   var latest=null;
   if(S.saved===false && isFinite(S.resAvg) && lbKey(S.mode,S.stim,S.total)===key){
     latest={ name:(S.sport?(S.name+'-'+S.sport):S.name), avg:Math.round(S.resAvg), ensayos:S.resEnsayos, ts:Date.now() };
@@ -1243,20 +1262,30 @@ function renderRank(mode,stim,total){
     latest=S.lastRec;
   }
   var lbLocal=loadLb(key);
-  sortLb(lbLocal, mode);
-  renderRankList(lbLocal, el, mode, latest);
   var rcKey=rankCacheKey(mode,stim,total);
-  var cached=loadRankCache(rcKey);
-  if(cached){ sortLb(cached, mode); renderRankList(cached, el, mode, latest); }
-  if(window.fbLoad){
-    window.fbLoad(mode,stim,total).then(function(rows){
-      if(rows && S.rankKey===key){
-        sortLb(rows, mode);
-        renderRankList(rows, el, mode, latest);
-        saveRankCache(rcKey, rows);
-      }
-    }).catch(function(){});
+  function draw(globalRows){
+    var rows=mergeRank(globalRows,lbLocal);
+    sortLb(rows, mode);
+    renderRankList(rows, el, mode, latest);
   }
+  draw(loadRankCache(rcKey)||[]);
+  if(window.fbWatch){
+    rankUnsub=window.fbWatch(mode,stim,total,function(rows){
+      if(S.rankKey!==key) return;
+      saveRankCache(rcKey, rows);
+      draw(rows);
+    });
+  }
+}
+/* Precarga (2026-09-30): al empezar un ejercicio con red, se guarda el
+   ranking de ESA combinacion (1 consulta, como mucho cada 30 min) para que
+   si luego se juega sin conexion ya este disponible. */
+function warmRank(mode,stim,total){
+  if(!window.fbLoad || !navigator.onLine) return;
+  var rcKey=rankCacheKey(mode,stim,total), t=0;
+  try{ t=+localStorage.getItem(rcKey+'_ts')||0; }catch(e){}
+  if(Date.now()-t < 30*60*1000) return;
+  window.fbLoad(mode,stim,total).then(function(rows){ if(rows){ saveRankCache(rcKey, rows); } }).catch(function(){});
 }
 
 function goHome(){ clearTimers(); S.running=false; S.lock=true; S.stimVisible=false; S.armed=false; show('home'); }
@@ -1349,7 +1378,7 @@ document.addEventListener('click', function(e){ if(e.target.closest && e.target.
 </script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 const firebaseConfig = {
   /* Proyecto suite compartido rds-reaction-test; coleccion propia scores_lights */
   apiKey: "AIzaSyBbEgbWddPt_rhPM24bL_Nacp7TAlh1biM",
@@ -1420,6 +1449,17 @@ window.addEventListener('online', flushPending);
 document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='visible'){ flushPending(); } });
 updatePendingUI();
 flushPending();
+window.fbWatch=function(mode,stim,total,cb){
+  if(!db) return null;
+  try{
+    const q=query(collection(db,'scores_lights'), where('mode','==',mode), where('stim','==',stim), where('total','==',total));
+    return onSnapshot(q, function(snap){
+      if(snap.metadata.fromCache) return;   // sin servidor no hay datos reales: no pisar la copia guardada
+      const out=[]; snap.forEach(function(d){ out.push(d.data()); });
+      cb(out);
+    }, function(){});
+  }catch(e){ return null; }
+};
 window.fbLoad=async function(mode,stim,total){
   if(!db) return null;
   try{
