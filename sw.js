@@ -1,5 +1,5 @@
 /* RDS Lights Speed Test - Service Worker */
-var CACHE = 'lst-v32';
+var CACHE = 'lst-v33';
 var ASSETS = [
   './',
   './index.html',
