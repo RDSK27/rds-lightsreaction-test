@@ -215,6 +215,14 @@ if('serviceWorker' in navigator){
   .substat{display:flex;justify-content:center;gap:16px;font-size:12px;color:#555;font-weight:600;}
   .substat b{color:var(--negro);}
 
+  /* v36: la pantalla de juego cabe en la altura disponible (p. ej. abierta desde SuiteRDS, con barra inferior):
+     el tamano de los pods baja solo lo justo (maximo = el de siempre, 80px). En pantallas altas queda igual. */
+  @media (max-height:760px){
+    :root{ --pod-size:clamp(48px,calc((100svh - 328px)/4),80px); --pod-gap:clamp(8px,2.4svh,16px); }
+    .stat .v{font-size:28px;}
+    .game-body{gap:5px;padding:6px 14px 8px;}
+  }
+
   .prog-row{display:flex;align-items:center;gap:10px;}
   .trial-count{font-weight:800;font-size:15px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.8);white-space:nowrap;min-width:44px;}
   .progress{flex:1;height:9px;background:var(--seg);border:2px solid var(--borde);}
@@ -423,7 +431,7 @@ if('serviceWorker' in navigator){
       </select>
     </div>
   </div>
-    <div class="app-ver">v35</div>
+    <div class="app-ver">v36</div>
     <div id="pending-sync" class="pending-sync"></div>
     </div>
 
