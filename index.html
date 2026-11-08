@@ -114,6 +114,43 @@ if('serviceWorker' in navigator){
   }
   .segment button:last-child{border-right:0;}
   .segment button.sel{background:var(--rojo);color:#fff;text-shadow:none;}
+  .segment button.x2on{background:#F5C400;color:#111;text-shadow:none;}
+  .segment button.x2-off{opacity:.35;pointer-events:none;}
+  #segModo button[data-v="x2"]{flex:0 0 42px;}
+  @media (max-width:360px){ #segModo.segment button{font-size:10px;letter-spacing:0;padding:0 1px;border-right-width:2px;} #segModo.segment button[data-v="x2"]{flex:0 0 28px;} }
+  /* ===== modo x2 (dos jugadores) ===== */
+  body.x2-active header{display:none;}
+  #x2{background:#fff;touch-action:none;-webkit-user-select:none;user-select:none;}
+  .x2-zone{flex:1;min-height:0;display:flex;flex-direction:column;gap:5px;padding:6px 10px 8px;box-sizing:border-box;background:#fff;}
+  .x2-top{transform:rotate(180deg);}
+  .x2-info{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:0 4px;flex:none;font-family:Arial,sans-serif;font-weight:900;white-space:nowrap;}
+  .x2-pts{font-size:28px;line-height:1.15;color:var(--rojo);}
+  .x2-pts.x2-blink{animation:x2blink .8s steps(2,jump-none) infinite;}
+  @keyframes x2blink{from{opacity:1;}to{opacity:.12;}}
+  .x2-gm,.x2-cu{font-size:21px;color:#111;}
+  .x2-area{flex:1;min-height:0;position:relative;display:flex;align-items:center;justify-content:center;}
+  .x2-kb{flex:none;box-sizing:border-box;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);place-items:center;border:3px solid #b03020;border-radius:14px;background-color:#222;background-image:linear-gradient(rgba(0,0,0,.20),rgba(0,0,0,.28)),var(--carbon);touch-action:none;}
+  .x2-flash{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:1;padding:9px 14px;border-radius:6px;background:rgba(0,0,0,.85);color:#fff;font:900 16px Arial,sans-serif;text-transform:uppercase;white-space:nowrap;pointer-events:none;}
+  .x2-flash:empty{display:none;}
+  .x2-panel{touch-action:pan-y;position:absolute;inset:0;z-index:2;display:none;flex-direction:column;align-items:center;justify-content:center;gap:9px;padding:8px 12px;box-sizing:border-box;background:#fff;border:2px solid #111;border-radius:8px;text-align:center;overflow:auto;font-family:Arial,sans-serif;color:#111;}
+  .x2-panel.on{display:flex;}
+  .x2-pt{font-size:21px;font-weight:900;line-height:1.15;color:var(--rojo);}
+  .x2-pr{font-size:15px;font-weight:700;line-height:1.25;}
+  .x2-rules{font-size:13px;font-weight:600;line-height:1.25;}
+  .x2-pbs{display:flex;gap:10px;}
+  .x2-bt{min-width:120px;padding:11px 16px;background:var(--rojo);color:#fff;border:0;border-radius:6px;font:900 15px Arial,sans-serif;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;}
+  .x2-bt.x2-sec{background:#111;}
+  .x2-bt:disabled{background:#8a8a8a;cursor:default;}
+  @media (max-height:700px){ .x2-panel{gap:6px;padding:5px 10px;} .x2-pr{font-size:14px;line-height:1.2;} .x2-rules{font-size:12px;line-height:1.2;} .x2-bt{padding:9px 16px;} }
+  @media (max-height:620px){ .x2-panel{gap:3px;padding:2px 8px;} .x2-pt{font-size:17px;} .x2-pr{font-size:12px;line-height:1.15;} .x2-rules{font-size:11px;line-height:1.1;} .x2-bt{min-width:104px;padding:7px 12px;font-size:14px;} }
+  /* banda central: las luces del inicio, la X y (Extremo) el color a pulsar */
+  .x2-mid{display:flex;align-items:center;justify-content:center;position:relative;flex:none;height:58px;background:#111;border-top:3px solid #b03020;border-bottom:3px solid #b03020;box-sizing:border-box;}
+  #x2Stim{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;gap:10px;border-radius:8px;}
+  #x2Stim.x2-lights{background:#fff;padding:6px 12px;}
+  .x2-lt{display:block;width:24px;height:24px;border-radius:50%;background:#d8281c;box-shadow:inset 0 3px 5px rgba(255,255,255,.35),0 0 10px rgba(216,40,28,.7);}
+  #x2Top{display:none;width:44px;margin:0;cursor:default;pointer-events:none;}
+  #x2Top.x2-show{display:flex;}
+  #x2Stop{position:absolute;right:10px;top:50%;margin-top:-20px;width:40px;height:40px;padding:0;border-radius:50%;border:2px solid #fff;background:#b03020;color:#fff;font:900 20px Arial,sans-serif;line-height:1;cursor:pointer;}
   #segModo button{ font-size:13px; letter-spacing:0.3px; padding-left:2px; padding-right:2px; }
   #segEstimulo,#segEnsayos{margin-top:0;}
   .seg-dim{ opacity:.4; pointer-events:none; }
@@ -373,6 +410,7 @@ if('serviceWorker' in navigator){
       <button data-v="2pods">Normal 2</button>
       <button data-v="extremo">Extremo</button>
       <button data-v="limite">L&#237;mite</button>
+      <button data-v="x2">x2</button>
     </div>
 
     <div class="segment" id="segEstimulo">
@@ -398,7 +436,7 @@ if('serviceWorker' in navigator){
           <button class="start-btn rank-btn" ontouchend="event.stopPropagation();" onclick="showRanking()" aria-label="Ranking"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#333333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 13.5v7.5M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 4H4v2a3 3 0 0 0 3 3M17 4h3v2a3 3 0 0 1-3 3"/></svg></button>
         </div>
       </div>
-  <div class="app-ver" style="margin-top:6px;padding-top:0;">v44</div>
+  <div class="app-ver" style="margin-top:6px;padding-top:0;">v45</div>
   <div id="user-name-bar" style="margin-top:8px;">
     <div style="display:flex;width:200px;gap:0;margin:0 auto;">
       <input id="user-ini-input" type="text" maxlength="3" placeholder="INI"
@@ -503,6 +541,30 @@ if('serviceWorker' in navigator){
   </div>
   </section>
 
+  <section id="x2" class="screen">
+    <div class="x2-zone x2-top" id="x2z1">
+      <div class="x2-info"><span class="x2-pts"></span><span class="x2-gm"></span><span class="x2-cu"></span></div>
+      <div class="x2-area">
+        <div class="grid3 x2-kb"><button type="button" class="pod" data-i="0"></button><button type="button" class="pod" data-i="1"></button><button type="button" class="pod" data-i="2"></button><button type="button" class="pod" data-i="3"></button><button type="button" class="pod" data-i="4"></button><button type="button" class="pod" data-i="5"></button><button type="button" class="pod" data-i="6"></button><button type="button" class="pod" data-i="7"></button><button type="button" class="pod" data-i="8"></button></div>
+        <div class="x2-flash"></div>
+        <div class="x2-panel"></div>
+      </div>
+    </div>
+    <div class="x2-mid">
+      <button type="button" class="toppod" id="x2Top" tabindex="-1" aria-hidden="true"></button>
+      <div id="x2Stim"></div>
+      <button id="x2Stop" type="button" aria-label="Parar">&#10005;</button>
+    </div>
+    <div class="x2-zone x2-bot" id="x2z0">
+      <div class="x2-info"><span class="x2-pts"></span><span class="x2-gm"></span><span class="x2-cu"></span></div>
+      <div class="x2-area">
+        <div class="grid3 x2-kb"><button type="button" class="pod" data-i="0"></button><button type="button" class="pod" data-i="1"></button><button type="button" class="pod" data-i="2"></button><button type="button" class="pod" data-i="3"></button><button type="button" class="pod" data-i="4"></button><button type="button" class="pod" data-i="5"></button><button type="button" class="pod" data-i="6"></button><button type="button" class="pod" data-i="7"></button><button type="button" class="pod" data-i="8"></button></div>
+        <div class="x2-flash"></div>
+        <div class="x2-panel"></div>
+      </div>
+    </div>
+  </section>
+
   <section id="result" class="screen">
     <div class="result-body">
       <div class="res-quad">
@@ -592,7 +654,7 @@ var SYMS = [["circle","cross"],["circle","dot"],["circle","hline"],["circle","vl
 var SWG=4.5;
 
 function $(id){ return document.getElementById(id); }
-function show(id){ if(id!=='ranking' && typeof stopRankWatch==='function') stopRankWatch(); var s=document.querySelectorAll('.screen'); for(var i=0;i<s.length;i++) s[i].classList.remove('active'); $(id).classList.add('active'); document.body.classList.toggle('home-active', id==='home'); }
+function show(id){ if(id!=='ranking' && typeof stopRankWatch==='function') stopRankWatch(); var s=document.querySelectorAll('.screen'); for(var i=0;i<s.length;i++) s[i].classList.remove('active'); $(id).classList.add('active'); document.body.classList.toggle('home-active', id==='home'); document.body.classList.toggle('x2-active', id==='x2'); }
 function two(n){ return (n<10?'0':'')+n; }
 function pad3(n){ return (n<10?'00':(n<100?'0':''))+n; }
 function fmtChrono2(ms){ if(ms<0)ms=0; var m=Math.floor(ms/60000), sec=Math.floor((ms%60000)/1000), mm=Math.floor(ms%1000); return two(m)+':'+two(sec)+'.'+pad3(mm); }
@@ -650,6 +712,7 @@ function seg(id){
   var box=$(id);
   box.addEventListener('click', function(e){
     var b=e.target.closest('button'); if(!b) return;
+    if(b.getAttribute('data-v')==='x2'){ xToggle(b); return; }
     var all=box.querySelectorAll('button');
     for(var i=0;i<all.length;i++) all[i].classList.remove('sel');
     b.classList.add('sel');
@@ -660,7 +723,7 @@ function updateModeUI(){
   var mode=selVal('segModo')||'normal';
   var est=$('segEstimulo');
   if(mode==='limite'){ setSeg('segEstimulo','cambia'); }
-  if(est){ est.classList.toggle('seg-dim', mode==='limite'); }
+  if(est){ est.classList.toggle('seg-dim', mode==='limite' || isX2()); }
 }
 function selVal(id){ var b=$(id).querySelector('button.sel'); return b?b.getAttribute('data-v'):null; }
 
@@ -744,7 +807,7 @@ function libreStart(){
   beginRun();
 }
 function openLibre(){ libreRender(); show('libre'); }
-function enterGame(){
+function enterGame(){ if(isX2()){ startX2(); return; }
   S.mode=selVal('segModo')||'normal';
   S.stim=selVal('segEstimulo')||'cambia';
   S.total=parseInt(selVal('segEnsayos')||'15',10);
@@ -1351,7 +1414,166 @@ function warmRank(mode,stim,total){
   window.fbLoad(mode,stim,total).then(function(rows){ if(rows){ saveRankCache(rcKey, rows); } }).catch(function(){});
 }
 
-function goHome(){ clearTimers(); S.running=false; S.lock=true; S.stimVisible=false; S.armed=false; show('home'); }
+/* ---------- modo x2: dos jugadores en un movil, sin ranking (2026-11-08; misma estructura que las demas apps x2) ----------
+   Normal 1 o Extremo. Jugador 1 = mitad de abajo, jugador 2 = mitad de arriba (girada 180 grados), con 9 pods cada uno, iguales y en los mismos sitios desde su lado.
+   Normal 1: se enciende el mismo pod en los dos. Extremo: los 9 pods de colores encendidos y el color a pulsar sale en la banda central.
+   Primero en pulsar el correcto +1. Pod equivocado: -1 para quien pulsa y +1 para el rival. Tras la primera pulsacion se ignora todo X_FREEZE ms y sale el siguiente.
+   Gana el juego el primero que llega a X_WIN; con 5-5 gana el siguiente. Partido al mejor de 3. El contador n/X_TOTAL son los estimulos que han salido; si un fallo alarga el juego puede pasar de X_TOTAL (puntos parpadeando). */
+var X={on:false,mode:'normal',pts:[0,0],games:[0,0],gameNo:1,n:0,state:'',t0:0,to:0,hist:[],target:-1,color:'',lastColor:'',streak:0,ready:[false,false]};
+var X_TOTAL=10, X_WIN=6, X_FREEZE=1000, X_WINGAMES=2, X_ORD=['primer','segundo','tercer'];
+function isX2(){ return $('segModo').querySelector('[data-v="x2"]').classList.contains('x2on'); }
+function xToggle(b){
+  var box=$('segModo'), on=b.classList.toggle('x2on');
+  ['2pods','limite'].forEach(function(v){   /* x2 solo se combina con Normal 1 o Extremo */
+    var o=box.querySelector('[data-v="'+v+'"]');
+    o.classList.toggle('x2-off',on);
+    if(on && o.classList.contains('sel')){ o.classList.remove('sel'); box.querySelector('[data-v="normal"]').classList.add('sel'); }
+  });
+  $('segEnsayos').classList.toggle('seg-dim',on);
+  updateModeUI();
+}
+function xClear(){ if(X.to){ clearTimeout(X.to); X.to=0; } }
+function xZone(p,sel){ return $('x2z'+p).querySelector(sel); }
+function xFlash(a,b){ xZone(0,'.x2-flash').innerHTML=a||''; xZone(1,'.x2-flash').innerHTML=b||''; }
+function xPanel(p,html){ var e=xZone(p,'.x2-panel'); e.innerHTML=html||''; e.classList.toggle('on',!!html); }
+function xPanelsOff(){ xPanel(0); xPanel(1); }
+function xBtn(act,txt,sec){ return '<button class="x2-bt'+(sec?' x2-sec':'')+'" type="button" data-x="'+act+'">'+txt+'</button>'; }
+function xRes(a,b){ return a+' &ndash; '+b; }
+function xLightsOff(){ var b=$('x2Stim'); b.className=''; b.innerHTML=''; }
+function xRender(){
+  var played=X.n-(X.state==='stim'?1:0), extra=X.on && X.state!=='between' && played>=X_TOTAL, p;
+  for(p=0;p<2;p++){
+    var pts=xZone(p,'.x2-pts');
+    pts.innerHTML=xRes(X.pts[p],X.pts[1-p]);
+    pts.classList.toggle('x2-blink',extra);
+    xZone(p,'.x2-gm').innerHTML=xRes(X.games[p],X.games[1-p]);
+    xZone(p,'.x2-cu').textContent=X.n+'/'+X_TOTAL;
+  }
+}
+function xFit(){   /* panel cuadrado con los 9 pods */
+  for(var p=0;p<2;p++){
+    var w=xZone(p,'.x2-area'), g=xZone(p,'.x2-kb'), side=Math.floor(Math.min(w.clientWidth,w.clientHeight));
+    if(side<80) continue;
+    g.style.width=side+'px'; g.style.height=side+'px';
+    var pad=Math.max(6,Math.round(side*0.04)), gap=Math.max(5,Math.round(side*0.035));
+    g.style.padding=pad+'px'; g.style.gap=gap+'px';
+  }
+}
+window.addEventListener('resize', function(){ if($('x2').classList.contains('active')) xFit(); });
+function xPods(fn){ for(var p=0;p<2;p++){ var k=$('x2z'+p).querySelectorAll('.pod'); for(var i=0;i<k.length;i++) fn(k[i],i); } }
+function xDark(){ xPods(function(el){ el.classList.remove('lit'); el.style.removeProperty('--pod-color'); }); }
+function xTop(color){   /* el circulo de la banda: solo en Extremo */
+  var t=$('x2Top');
+  t.classList.toggle('x2-show',X.mode==='extremo' && X.state!=='count');
+  if(color){ t.style.setProperty('--pod-color',color); t.classList.add('lit'); }
+  else { t.classList.remove('lit'); t.style.removeProperty('--pod-color'); }
+}
+function xReset(){ xClear(); X.pts=[0,0]; X.games=[0,0]; X.gameNo=1; X.n=0; X.hist=[]; X.target=-1; X.lastColor=''; X.streak=0; xPanelsOff(); xFlash(); xLightsOff(); xDark(); }
+function startX2(){   /* pantalla inicial con la informacion para cada jugador */
+  X.mode=selVal('segModo')==='extremo'?'extremo':'normal';
+  xReset(); X.on=false; X.state='intro'; X.ready=[false,false];
+  show('x2'); $('x2Stop').style.display='block'; xFit(); setTimeout(xFit,0); xRender(); xTop(null);
+  var ext=X.mode==='extremo';
+  for(var p=0;p<2;p++) xPanel(p,'<div class="x2-pt">Jugador '+(p+1)+(ext?' &middot; Extremo':'')+'</div>'
+    +'<div class="x2-pr">Uno contra uno, al mejor de 3 juegos.<br>Gana cada juego el primero que llega a 6 puntos; con 5 a 5, gana el siguiente.</div>'
+    +'<div class="x2-rules">'+(ext?'Pulsa el pod del color que sale en el centro':'Pulsa el pod que se enciende')+': el primero suma 1. Si te equivocas, -1 para ti y +1 para el rival.</div>'
+    +xBtn('start','Empezar'));
+}
+function xReady(p,b,a){   /* Empezar/Continuar: arranca cuando lo han pulsado los dos */
+  X.ready[p]=true; b.disabled=true; b.textContent='Esperando';
+  if(!X.ready[0] || !X.ready[1]) return;
+  X.ready=[false,false];
+  if(a==='start') xBegin(); else xContinue();
+}
+function xBegin(){ xReset(); X.on=true; X.state=''; $('x2Stop').style.display='block'; xRender(); xLights(); }
+function xContinue(){ X.pts=[0,0]; X.n=0; X.gameNo++; X.state=''; X.target=-1; xPanelsOff(); xFlash(); xDark(); xRender(); xLights(); }
+function xLights(){   /* semaforo: 3 luces rojas, se quita una cada 0,8 s; al quitar la tercera sale el primer estimulo */
+  var box=$('x2Stim'), n=3;
+  X.state='count'; box.className='x2-lights'; xTop(null);
+  function draw(){ var h='', i; for(i=0;i<n;i++) h+='<i class="x2-lt"></i>'; box.innerHTML=h; }
+  draw();
+  function step(){
+    X.to=setTimeout(function(){ X.to=0; if(!X.on) return; n--; if(n<=0){ xLightsOff(); xNext(); return; } draw(); step(); }, 800);
+  }
+  step();
+}
+function xPickColor(){   /* como en el modo de un jugador: el mismo color no mas de 3 veces seguidas */
+  var c;
+  do { c=PALETTE[Math.floor(Math.random()*PALETTE.length)]; } while(c===X.lastColor && X.streak>=3);
+  if(c===X.lastColor) X.streak++; else { X.lastColor=c; X.streak=1; }
+  return c;
+}
+function xNext(){
+  X.state='stim';
+  if(X.mode==='extremo'){
+    X.color=xPickColor();
+    xPods(function(el,i){ el.style.setProperty('--pod-color',PALETTE[i]); el.classList.add('lit'); });
+    xTop(X.color);
+  } else {
+    var i; do { i=Math.floor(Math.random()*9); } while(i===X.target);
+    X.target=i;
+    xPods(function(el,k){ if(k===i){ el.style.setProperty('--pod-color',POD_RED); el.classList.add('lit'); } else { el.classList.remove('lit'); el.style.removeProperty('--pod-color'); } });
+  }
+  X.n++; X.t0=performance.now(); xRender();
+}
+function xPress(p,i){
+  if(!X.on || X.state!=='stim') return;
+  var hit=X.mode==='extremo'?PALETTE[i]===X.color:i===X.target, msg=['',''];
+  if(hit){ X.pts[p]++; msg[p]='Punto &middot; '+Math.round(Math.max(0,performance.now()-X.t0-RT_CORR))+' ms'; msg[1-p]='Punto rival'; sndTap(); }
+  else { X.pts[p]--; X.pts[1-p]++; msg[p]='Fallo -1'; msg[1-p]='Fallo rival +1'; sndFail(); }
+  X.state='freeze';
+  if(X.mode==='extremo') xTop(null); else xDark();
+  xFlash(msg[0],msg[1]);
+  xRender();
+  X.to=setTimeout(function(){ X.to=0; xFlash(); xAfter(); }, X_FREEZE);
+}
+function xAfter(){
+  if(!X.on) return;
+  if(X.pts[0]>=X_WIN || X.pts[1]>=X_WIN){ xGameEnd(X.pts[0]>=X_WIN?0:1); return; }
+  xNext();
+}
+function xGameEnd(i){
+  var p, h, j;
+  X.games[i]++; X.hist.push([X.pts[0],X.pts[1]]);
+  xDark(); xTop(null);
+  if(X.games[i]>=X_WINGAMES){
+    X.on=false; X.state='end'; xRender(); $('x2Stop').style.display='none'; sndSymbol();
+    for(p=0;p<2;p++){
+      for(h=[],j=0;j<X.hist.length;j++) h.push(xRes(X.hist[j][p],X.hist[j][1-p]));
+      xPanel(p,'<div class="x2-pt">'+(p===i?'¡Enhorabuena, Jugador '+(p+1)+'!':'Jugador '+(i+1)+' gana el partido')+'</div>'
+        +'<div class="x2-pr">'+(p===i?'Has ganado el partido ':'Resultado ')+xRes(X.games[p],X.games[1-p])+'<br>Juegos: '+h.join(', ')+'</div>'
+        +'<div class="x2-pbs">'+xBtn('home','Inicio',true)+xBtn('again','Repetir')+'</div>');
+    }
+    return;
+  }
+  X.state='between'; X.ready=[false,false]; xRender();
+  for(p=0;p<2;p++) xPanel(p,'<div class="x2-pt">Jugador '+(i+1)+' gana el '+X_ORD[X.gameNo-1]+' juego</div>'
+    +'<div class="x2-pr">Puntos '+xRes(X.pts[p],X.pts[1-p])+'<br>Juegos '+xRes(X.games[p],X.games[1-p])+'</div>'
+    +xBtn('next','Continuar'));
+}
+function xStop(){
+  if(X.state==='intro'){ goHome(); return; }
+  xClear(); X.on=false; X.state='end'; xLightsOff(); xFlash(); xDark(); xTop(null); xRender(); $('x2Stop').style.display='none';
+  for(var p=0;p<2;p++) xPanel(p,'<div class="x2-pt">Partida parada</div><div class="x2-pbs">'+xBtn('home','Inicio',true)+xBtn('again','Repetir')+'</div>');
+}
+(function(){
+  var sec=$('x2');
+  sec.addEventListener('pointerdown', function(e){
+    var k=e.target.closest ? e.target.closest('.pod') : null; if(!k) return;
+    if(e.cancelable) e.preventDefault();
+    xPress(parseInt(k.closest('.x2-zone').id.slice(3),10), parseInt(k.getAttribute('data-i'),10));
+  }, {passive:false});
+  sec.addEventListener('click', function(e){
+    var b=e.target.closest ? e.target.closest('[data-x]') : null; if(!b) return;
+    var a=b.getAttribute('data-x');
+    if(a==='start' || a==='next') xReady(parseInt(b.closest('.x2-zone').id.slice(3),10),b,a);
+    else if(a==='again') xBegin();
+    else if(a==='home') goHome();
+  });
+  $('x2Stop').addEventListener('click', xStop);
+})();
+
+function goHome(){ xClear(); X.on=false; X.state=''; clearTimers(); S.running=false; S.lock=true; S.stimVisible=false; S.armed=false; show('home'); }
 
 seg('segModo'); seg('segEstimulo'); seg('segEnsayos'); updateModeUI(); libreInit();
 segRank('segModoR'); segRank('segEstR'); segRank('segEnsR');
