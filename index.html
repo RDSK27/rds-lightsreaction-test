@@ -128,7 +128,12 @@ if('serviceWorker' in navigator){
   .x2-pts{font-size:28px;line-height:1.15;color:var(--rojo);}
   .x2-pts.x2-blink{animation:x2blink .8s steps(2,jump-none) infinite;}
   @keyframes x2blink{from{opacity:1;}to{opacity:.12;}}
-  .x2-gm,.x2-cu{font-size:21px;color:#111;}
+  .x2-gm,.x2-who{font-size:15px;color:#111;}
+  .x2-pts{font-size:15px;}
+  .x2-info>span{flex:1;}
+  .x2-who{text-align:center;font-size:17px;}
+  .x2-gm{text-align:right;}
+  .x2-info b{font-size:22px;}
   .x2-area{flex:1;min-height:0;position:relative;display:flex;align-items:center;justify-content:center;}
   .x2-kb{flex:none;box-sizing:border-box;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);place-items:center;border:3px solid #b03020;border-radius:14px;background-color:#222;background-image:linear-gradient(rgba(0,0,0,.20),rgba(0,0,0,.28)),var(--mesh);background-size:cover;background-position:center;background-repeat:no-repeat;box-shadow:0 4px 12px rgba(0,0,0,.45);touch-action:none;}
   .x2-flash{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:1;padding:9px 14px;border-radius:6px;background:rgba(0,0,0,.85);color:#fff;font:900 16px Arial,sans-serif;text-transform:uppercase;white-space:nowrap;pointer-events:none;}
@@ -437,7 +442,7 @@ if('serviceWorker' in navigator){
           <button class="start-btn rank-btn" ontouchend="event.stopPropagation();" onclick="showRanking()" aria-label="Ranking"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#333333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 13.5v7.5M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 4H4v2a3 3 0 0 0 3 3M17 4h3v2a3 3 0 0 1-3 3"/></svg></button>
         </div>
       </div>
-  <div class="app-ver" style="margin-top:6px;padding-top:0;">v46</div>
+  <div class="app-ver" style="margin-top:6px;padding-top:0;">v47</div>
   <div id="user-name-bar" style="margin-top:8px;">
     <div style="display:flex;width:200px;gap:0;margin:0 auto;">
       <input id="user-ini-input" type="text" maxlength="3" placeholder="INI"
@@ -544,7 +549,7 @@ if('serviceWorker' in navigator){
 
   <section id="x2" class="screen">
     <div class="x2-zone x2-top" id="x2z1">
-      <div class="x2-info"><span class="x2-pts"></span><span class="x2-gm"></span><span class="x2-cu"></span></div>
+      <div class="x2-info"><span class="x2-pts"></span><span class="x2-who"></span><span class="x2-gm"></span></div>
       <div class="x2-area">
         <div class="grid3 x2-kb"><button type="button" class="pod" data-i="0"></button><button type="button" class="pod" data-i="1"></button><button type="button" class="pod" data-i="2"></button><button type="button" class="pod" data-i="3"></button><button type="button" class="pod" data-i="4"></button><button type="button" class="pod" data-i="5"></button><button type="button" class="pod" data-i="6"></button><button type="button" class="pod" data-i="7"></button><button type="button" class="pod" data-i="8"></button></div>
         <div class="x2-flash"></div>
@@ -557,7 +562,7 @@ if('serviceWorker' in navigator){
       <button id="x2Stop" type="button" aria-label="Parar">&#10005;</button>
     </div>
     <div class="x2-zone x2-bot" id="x2z0">
-      <div class="x2-info"><span class="x2-pts"></span><span class="x2-gm"></span><span class="x2-cu"></span></div>
+      <div class="x2-info"><span class="x2-pts"></span><span class="x2-who"></span><span class="x2-gm"></span></div>
       <div class="x2-area">
         <div class="grid3 x2-kb"><button type="button" class="pod" data-i="0"></button><button type="button" class="pod" data-i="1"></button><button type="button" class="pod" data-i="2"></button><button type="button" class="pod" data-i="3"></button><button type="button" class="pod" data-i="4"></button><button type="button" class="pod" data-i="5"></button><button type="button" class="pod" data-i="6"></button><button type="button" class="pod" data-i="7"></button><button type="button" class="pod" data-i="8"></button></div>
         <div class="x2-flash"></div>
@@ -1421,7 +1426,8 @@ function warmRank(mode,stim,total){
    Primero en pulsar el correcto +1. Pod equivocado: -1 para quien pulsa y +1 para el rival. Tras la primera pulsacion se ignora todo X_FREEZE ms y sale el siguiente.
    Gana el juego el primero que llega a X_WIN; con 5-5 gana el siguiente. Partido al mejor de 3. El contador n/X_TOTAL son los estimulos que han salido; si un fallo alarga el juego puede pasar de X_TOTAL (puntos parpadeando). */
 var X={on:false,mode:'normal',pts:[0,0],games:[0,0],gameNo:1,n:0,state:'',t0:0,to:0,hist:[],target:-1,color:'',lastColor:'',streak:0,ready:[false,false]};
-var X_TOTAL=10, X_WIN=6, X_FREEZE=1000, X_WINGAMES=2, X_ORD=['primer','segundo','tercer'];
+var X_TOTAL=10, X_MARGIN=2, X_FREEZE=1000, X_WINGAMES=3, X_ORD=['primer','segundo','tercer'];
+function xSetWon(a,b){ return a>=X_TOTAL && a-b>=X_MARGIN; }   /* set: primero a 10; con empate a 9 hacen falta 2 de diferencia (2026-11-10) */
 function isX2(){ return $('segModo').querySelector('[data-v="x2"]').classList.contains('x2on'); }
 function xToggle(b){
   var box=$('segModo'), on=b.classList.toggle('x2on');
@@ -1442,13 +1448,13 @@ function xBtn(act,txt,sec){ return '<button class="x2-bt'+(sec?' x2-sec':'')+'" 
 function xRes(a,b){ return a+' &ndash; '+b; }
 function xLightsOff(){ var b=$('x2Stim'); b.className=''; b.innerHTML=''; }
 function xRender(){
-  var played=X.n-(X.state==='stim'?1:0), extra=X.on && X.state!=='between' && played>=X_TOTAL, p;
+  var extra=X.on && X.pts[0]>=X_TOTAL-1 && X.pts[1]>=X_TOTAL-1, p;
   for(p=0;p<2;p++){
     var pts=xZone(p,'.x2-pts');
-    pts.innerHTML=xRes(X.pts[p],X.pts[1-p]);
+    pts.innerHTML='Set <b>'+xRes(X.pts[p],X.pts[1-p])+'</b>';
     pts.classList.toggle('x2-blink',extra);
-    xZone(p,'.x2-gm').innerHTML=xRes(X.games[p],X.games[1-p]);
-    xZone(p,'.x2-cu').textContent=X.n+'/'+X_TOTAL;
+    xZone(p,'.x2-who').textContent='Jugador '+(p+1);
+    xZone(p,'.x2-gm').innerHTML='Partido <b>'+xRes(X.games[p],X.games[1-p])+'</b>';
   }
 }
 function xFit(){   /* panel cuadrado con los 9 pods */
@@ -1476,7 +1482,7 @@ function startX2(){   /* pantalla inicial con la informacion para cada jugador *
   show('x2'); $('x2Stop').style.display='block'; xFit(); setTimeout(xFit,0); xRender(); xTop(null);
   var ext=X.mode==='extremo';
   for(var p=0;p<2;p++) xPanel(p,'<div class="x2-pt">Jugador '+(p+1)+(ext?' &middot; Extremo':'')+'</div>'
-    +'<div class="x2-pr">Uno contra uno, al mejor de 3 juegos.<br>Gana cada juego el primero que llega a 6 puntos; con 5 a 5, gana el siguiente.</div>'
+    +'<div class="x2-pr">Gana el partido el primero que gane 3 sets.<br>Gana el set el primero que llegue a 10 puntos; con empate a 9 hacen falta 2 de diferencia.</div>'
     +'<div class="x2-rules">'+(ext?'Pulsa el pod del color que sale en el centro':'Pulsa el pod que se enciende')+': el primero suma 1. Si te equivocas, -1 para ti y +1 para el rival.</div>'
     +xBtn('start','Empezar'));
 }
@@ -1530,7 +1536,8 @@ function xPress(p,i){
 }
 function xAfter(){
   if(!X.on) return;
-  if(X.pts[0]>=X_WIN || X.pts[1]>=X_WIN){ xGameEnd(X.pts[0]>=X_WIN?0:1); return; }
+  if(xSetWon(X.pts[0],X.pts[1])){ xGameEnd(0); return; }
+  if(xSetWon(X.pts[1],X.pts[0])){ xGameEnd(1); return; }
   xNext();
 }
 function xGameEnd(i){
@@ -1542,14 +1549,14 @@ function xGameEnd(i){
     for(p=0;p<2;p++){
       for(h=[],j=0;j<X.hist.length;j++) h.push(xRes(X.hist[j][p],X.hist[j][1-p]));
       xPanel(p,'<div class="x2-pt">'+(p===i?'¡Enhorabuena, Jugador '+(p+1)+'!':'Jugador '+(i+1)+' gana el partido')+'</div>'
-        +'<div class="x2-pr">'+(p===i?'Has ganado el partido ':'Resultado ')+xRes(X.games[p],X.games[1-p])+'<br>Juegos: '+h.join(', ')+'</div>'
+        +'<div class="x2-pr">'+(p===i?'Has ganado el partido ':'Has perdido el partido ')+xRes(X.games[p],X.games[1-p])+'<br>Sets: '+h.join(', ')+'</div>'
         +'<div class="x2-pbs">'+xBtn('home','Inicio',true)+xBtn('again','Repetir')+'</div>');
     }
     return;
   }
   X.state='between'; X.ready=[false,false]; xRender();
-  for(p=0;p<2;p++) xPanel(p,'<div class="x2-pt">Jugador '+(i+1)+' gana el '+X_ORD[X.gameNo-1]+' juego</div>'
-    +'<div class="x2-pr">Puntos '+xRes(X.pts[p],X.pts[1-p])+'<br>Juegos '+xRes(X.games[p],X.games[1-p])+'</div>'
+  for(p=0;p<2;p++) xPanel(p,'<div class="x2-pt">Has '+(p===i?'ganado':'perdido')+' el set '+X.gameNo+'</div>'
+    +'<div class="x2-pr">Set '+xRes(X.pts[p],X.pts[1-p])+'<br>Partido '+xRes(X.games[p],X.games[1-p])+'</div>'
     +xBtn('next','Continuar'));
 }
 function xStop(){
